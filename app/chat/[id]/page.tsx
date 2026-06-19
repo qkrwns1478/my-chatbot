@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, use } from "react";
+import Link from "next/link";
 import { Message } from "@/lib/db";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -22,20 +23,16 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. 채팅방 데이터 불러오기
         const roomRes = await fetch(`/api/chatrooms/${id}`);
         if (!roomRes.ok) throw new Error("Failed to load chatroom");
         const roomData = await roomRes.json();
         setMessages(roomData.messages || []);
 
-        // 2. 캐릭터 목록을 불러와서 현재 채팅방의 캐릭터 이름 찾기
         const charRes = await fetch("/api/characters");
         if (charRes.ok) {
           const characters = await charRes.json();
           const char = characters.find((c: any) => c.id === roomData.characterId);
-          if (char) {
-            setCharacterName(char.name); // 찾은 이름으로 상태 업데이트
-          }
+          if (char) setCharacterName(char.name);
         }
       } catch (error) {
         console.error(error);
@@ -80,16 +77,28 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-3xl mx-auto border-x border-border-subtle bg-surface-dark">
-      {/* Header Area with Model Selection */}
-      <header className="p-4 border-b border-border-subtle bg-surface-dark flex justify-between items-center">
-        <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">
-          Chat with {characterName} {/* 헤더에도 캐릭터 이름 반영 */}
-        </h1>
+    <div className="flex flex-col h-screen max-w-3xl mx-auto border-x border-border-subtle">
+      {/* Header */}
+      <header className="px-5 py-4 border-b border-border-subtle bg-surface-dark/80 backdrop-blur-[15px] flex justify-between items-center sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="text-[13px] font-mono text-text-muted hover:text-text-secondary transition-colors"
+          >
+            ←
+          </Link>
+          <div className="w-px h-4 bg-border-subtle" />
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-green shadow-[0_0_5px_#00e599]" />
+            <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">
+              {characterName}
+            </h1>
+          </div>
+        </div>
         <select
           value={selectedModel}
           onChange={(e) => setSelectedModel(e.target.value)}
-          className="bg-surface-elevated text-[13px] text-text-primary border border-border-subtle rounded-xl px-3 py-2 outline-none focus:border-brand-green tracking-[-0.13px] cursor-pointer"
+          className="bg-surface-elevated text-[12px] text-text-secondary border border-border-subtle rounded-xl px-3 py-2 outline-none focus:border-brand-green transition-all duration-200 cursor-pointer font-mono hover:text-text-primary"
         >
           {AVAILABLE_MODELS.map((model) => (
             <option key={model.id} value={model.id}>
@@ -99,96 +108,95 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         </select>
       </header>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-            <span className="text-[13px] text-text-secondary mb-1 tracking-[-0.13px]">
-              {/* 'Character' 대신 characterName 상태값 출력 */}
+            <span className="text-[12px] font-mono text-text-muted mb-1.5">
               {msg.role === "user" ? "You" : characterName}
             </span>
             <div
-              className={`p-4 max-w-[85%] rounded-2xl text-[16px] leading-[24px] overflow-hidden ${
+              className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] overflow-hidden ${
                 msg.role === "user"
-                  ? "bg-brand-green-dark text-text-primary"
-                  : "bg-surface-elevated text-text-primary border border-border-subtle"
+                  ? "bg-brand-green-dark border border-brand-green/20 text-text-primary rounded-br-sm"
+                  : "bg-surface-elevated border border-border-subtle text-text-primary rounded-bl-sm"
               }`}
             >
-              {msg.role === "user" ? (
-                <div className="whitespace-pre-wrap">{msg.content}</div>
-              ) : (
-                <div className="space-y-4">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
-                      a: ({ node, ...props }) => (
-                        <a
-                          className="text-brand-green hover:underline cursor-pointer"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          {...props}
-                        />
-                      ),
-                      strong: ({ node, ...props }) => <strong className="font-medium text-text-primary" {...props} />,
-                      h1: ({ node, ...props }) => (
-                        <h1
-                          className="text-[24px] font-medium mt-6 mb-4 text-text-primary border-b border-border-subtle pb-2"
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2 className="text-[20px] font-medium mt-6 mb-4 text-text-primary" {...props} />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
-                      ),
-                      ul: ({ node, ...props }) => <ul className="list-disc ml-6 space-y-2 mb-4" {...props} />,
-                      ol: ({ node, ...props }) => <ol className="list-decimal ml-6 space-y-2 mb-4" {...props} />,
-                      li: ({ node, ...props }) => <li className="pl-1" {...props} />,
-                      blockquote: ({ node, ...props }) => (
-                        <blockquote
-                          className="border-l-4 border-brand-green-mid pl-4 py-1 text-text-secondary bg-surface-dark/50 rounded-r-xl"
-                          {...props}
-                        />
-                      ),
-                      code: (props) => {
-                        const { children, className, node, ...rest } = props;
-                        const match = /language-(\w+)/.exec(className || "");
-                        return match ? (
-                          <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono text-text-secondary leading-[23.1px] tracking-[-0.28px]">
-                            <code className={className} {...rest}>
-                              {children}
-                            </code>
-                          </pre>
-                        ) : (
-                          <code
-                            className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[14px] font-mono text-brand-green-mid tracking-[-0.28px]"
-                            {...rest}
-                          >
+              <div className="space-y-2">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    p: ({ node, ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
+                    a: ({ node, ...props }) => (
+                      <a
+                        className="text-brand-green hover:text-brand-green-mid underline underline-offset-2 cursor-pointer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        {...props}
+                      />
+                    ),
+                    strong: ({ node, ...props }) => <strong className="font-medium text-text-primary" {...props} />,
+                    h1: ({ node, ...props }) => (
+                      <h1 className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2" {...props} />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
+                    ),
+                    h3: ({ node, ...props }) => (
+                      <h3 className="text-[16px] font-medium mt-4 mb-2 text-text-secondary" {...props} />
+                    ),
+                    ul: ({ node, ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                    ol: ({ node, ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                    li: ({ node, ...props }) => <li className="pl-1 text-text-primary" {...props} />,
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote
+                        className="border-l-2 border-brand-green/50 pl-4 py-1 text-text-secondary italic my-4"
+                        {...props}
+                      />
+                    ),
+                    code: (props) => {
+                      const { children, className, node, ...rest } = props;
+                      const match = /language-(\w+)/.exec(className || "");
+                      return match ? (
+                        <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono text-text-secondary leading-[23.1px] tracking-[-0.28px]">
+                          <code className={className} {...rest}>
                             {children}
                           </code>
-                        );
-                      },
-                    }}
-                  >
-                    {msg.content}
-                  </ReactMarkdown>
-                </div>
-              )}
+                        </pre>
+                      ) : (
+                        <code
+                          className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[13px] font-mono text-brand-green-mid tracking-[-0.28px]"
+                          {...rest}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         ))}
+
         {isLoading && (
-          <div className="text-[14px] text-text-secondary font-mono tracking-[-0.28px]">
-            {characterName} is typing...
+          <div className="flex flex-col items-start">
+            <span className="text-[12px] font-mono text-text-muted mb-1.5">{characterName}</span>
+            <div className="bg-surface-elevated border border-border-subtle rounded-2xl rounded-bl-sm px-5 py-4 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-2" />
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-3" />
+            </div>
           </div>
         )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-surface-dark border-t border-border-subtle">
+      {/* Input */}
+      <div className="px-5 py-4 bg-surface-dark border-t border-border-subtle">
         <div className="flex gap-3">
           <input
             type="text"
@@ -196,12 +204,12 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="Type a message..."
-            className="flex-1 bg-page-bg border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-green"
+            className="flex-1 bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.2)] transition-all duration-200"
           />
           <button
             onClick={sendMessage}
             disabled={isLoading}
-            className="bg-brand-green hover:bg-brand-green-mid text-page-bg font-medium px-6 py-3 rounded-xl transition-colors disabled:opacity-50"
+            className="bg-brand-green hover:bg-brand-green-mid text-page-bg font-medium px-6 py-3 rounded-xl transition-all duration-200 disabled:opacity-40 shadow-[0_0_0px_rgba(0,229,153,0)] hover:shadow-[0_0_16px_rgba(0,229,153,0.3)] text-[15px] tracking-[-0.3px]"
           >
             Send
           </button>

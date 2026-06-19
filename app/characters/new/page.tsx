@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NewCharacterPage() {
   const router = useRouter();
@@ -30,61 +31,78 @@ export default function NewCharacterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-page-bg flex items-center justify-center p-6">
-      <div className="w-full max-w-lg bg-surface-dark border border-border-subtle rounded-2xl p-8 space-y-6">
-        <div>
-          <h1 className="text-[48px] font-normal leading-[54px] tracking-[-1.92px] mb-2 text-text-primary">
-            New Persona
-          </h1>
-          <p className="text-[16px] text-text-secondary leading-[24px]">
-            Define the character's core identity and behavior.
-          </p>
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-lg space-y-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[13px] text-text-muted hover:text-text-secondary transition-colors font-mono"
+        >
+          ← Back
+        </Link>
+
+        <div className="bg-surface-dark border border-border-subtle rounded-2xl p-8 space-y-7 relative overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/40 to-transparent" />
+
+          <div>
+            <p className="text-[12px] font-mono uppercase tracking-[0.12em] text-brand-green mb-3">
+              New Persona
+            </p>
+            <h1 className="text-[48px] font-normal leading-[54px] tracking-[-1.92px] text-text-primary">
+              Create Character
+            </h1>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
+                Name
+              </label>
+              <input
+                required
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
+                placeholder="e.g. Neon Cyberpunk"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
+                System Persona
+              </label>
+              <textarea
+                required
+                value={formData.persona}
+                onChange={(e) => setFormData({ ...formData, persona: e.target.value })}
+                className="w-full h-32 bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200 resize-none leading-[24px]"
+                placeholder="Describe the character's personality, background, and tone..."
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
+                First Greeting
+              </label>
+              <input
+                required
+                type="text"
+                value={formData.greeting}
+                onChange={(e) => setFormData({ ...formData, greeting: e.target.value })}
+                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
+                placeholder="e.g. System online. How can I assist you today?"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-brand-green hover:bg-brand-green-mid text-page-bg font-medium text-[16px] py-4 rounded-xl transition-all duration-200 mt-2 disabled:opacity-40 shadow-[0_0_0px_rgba(0,229,153,0)] hover:shadow-[0_0_24px_rgba(0,229,153,0.25)] tracking-[-0.3px]"
+            >
+              {isLoading ? "Creating..." : "Create Character"}
+            </button>
+          </form>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-[13px] text-text-secondary tracking-[-0.13px]">Name</label>
-            <input
-              required
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary focus:outline-none focus:border-brand-green"
-              placeholder="e.g. Neon Cyberpunk"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[13px] text-text-secondary tracking-[-0.13px]">System Persona (Prompt)</label>
-            <textarea
-              required
-              value={formData.persona}
-              onChange={(e) => setFormData({ ...formData, persona: e.target.value })}
-              className="w-full h-32 bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary focus:outline-none focus:border-brand-green resize-none"
-              placeholder="Describe the character's personality, background, and tone..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[13px] text-text-secondary tracking-[-0.13px]">First Greeting Message</label>
-            <input
-              required
-              type="text"
-              value={formData.greeting}
-              onChange={(e) => setFormData({ ...formData, greeting: e.target.value })}
-              className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary focus:outline-none focus:border-brand-green"
-              placeholder="e.g. System online. How can I assist you today?"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-brand-green hover:bg-brand-green-mid text-page-bg font-medium text-[16px] py-4 rounded-xl transition-colors mt-4 disabled:opacity-50"
-          >
-            Create Character
-          </button>
-        </form>
       </div>
     </div>
   );
