@@ -37,7 +37,7 @@ export default function NewCharacterPage() {
             New Persona
           </h1>
           <p className="text-[16px] text-text-secondary leading-[24px]">
-            Define the character's core identity and behavior.
+            Define the character&apos;s core identity and behavior.
           </p>
         </div>
 

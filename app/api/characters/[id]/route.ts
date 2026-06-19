@@ -16,8 +16,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     saveCharacters(characters);
 
     return NextResponse.json(characters[index]);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -29,7 +30,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     saveCharacters(filteredCharacters);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

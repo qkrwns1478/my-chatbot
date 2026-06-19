@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Character } from "@/lib/db";
 
 export default function EditCharacterPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -13,8 +14,8 @@ export default function EditCharacterPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     fetch("/api/characters")
       .then((res) => res.json())
-      .then((data) => {
-        const char = data.find((c: any) => c.id === id);
+      .then((data: Character[]) => {
+        const char = data.find((c) => c.id === id);
         if (char) {
           setFormData({ name: char.name, persona: char.persona, greeting: char.greeting });
         } else {

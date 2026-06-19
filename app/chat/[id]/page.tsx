@@ -30,8 +30,8 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
         const charRes = await fetch("/api/characters");
         if (charRes.ok) {
-          const characters = await charRes.json();
-          const char = characters.find((c: any) => c.id === roomData.characterId);
+          const charData = await charRes.json();
+          const char = charData.find((c: { id: string }) => c.id === roomData.characterId);
           if (char) setCharacterName(char.name);
         }
       } catch (error) {
@@ -126,8 +126,8 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    p: ({ node, ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
-                    a: ({ node, ...props }) => (
+                    p: ({ ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
+                    a: ({ ...props }) => (
                       <a
                         className="text-brand-green hover:text-brand-green-mid underline underline-offset-2 cursor-pointer"
                         target="_blank"
@@ -135,27 +135,27 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                         {...props}
                       />
                     ),
-                    strong: ({ node, ...props }) => <strong className="font-medium text-text-primary" {...props} />,
-                    h1: ({ node, ...props }) => (
+                    strong: ({ ...props }) => <strong className="font-medium text-text-primary" {...props} />,
+                    h1: ({ ...props }) => (
                       <h1 className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2" {...props} />
                     ),
-                    h2: ({ node, ...props }) => (
+                    h2: ({ ...props }) => (
                       <h2 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
                     ),
-                    h3: ({ node, ...props }) => (
+                    h3: ({ ...props }) => (
                       <h3 className="text-[16px] font-medium mt-4 mb-2 text-text-secondary" {...props} />
                     ),
-                    ul: ({ node, ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
-                    li: ({ node, ...props }) => <li className="pl-1 text-text-primary" {...props} />,
-                    blockquote: ({ node, ...props }) => (
+                    ul: ({ ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                    ol: ({ ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                    li: ({ ...props }) => <li className="pl-1 text-text-primary" {...props} />,
+                    blockquote: ({ ...props }) => (
                       <blockquote
                         className="border-l-2 border-brand-green/50 pl-4 py-1 text-text-secondary italic my-4"
                         {...props}
                       />
                     ),
                     code: (props) => {
-                      const { children, className, node, ...rest } = props;
+                      const { children, className, ...rest } = props;
                       const match = /language-(\w+)/.exec(className || "");
                       return match ? (
                         <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono text-text-secondary leading-[23.1px] tracking-[-0.28px]">

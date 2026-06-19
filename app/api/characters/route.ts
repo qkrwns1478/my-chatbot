@@ -6,8 +6,9 @@ export async function GET() {
   try {
     const characters = getCharacters();
     return NextResponse.json(characters);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -27,7 +28,8 @@ export async function POST(req: Request) {
     saveCharacters(characters);
 
     return NextResponse.json(newCharacter);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

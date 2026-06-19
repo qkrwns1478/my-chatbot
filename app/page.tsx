@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Character, Chatroom } from "@/lib/db";
@@ -23,7 +23,7 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const startChat = async (character: Character) => {
+  const startChat = useCallback(async (character: Character) => {
     try {
       const res = await fetch("/api/chatrooms", {
         method: "POST",
@@ -42,7 +42,7 @@ export default function Home() {
     } catch (error) {
       console.error("Failed to create chatroom", error);
     }
-  };
+  }, [router]);
 
   const deleteCharacter = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
