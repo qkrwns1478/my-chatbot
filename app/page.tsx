@@ -3,12 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Character, Chatroom } from "@/lib/db";
+import { Character, Chatroom, InteractionRoom } from "@/lib/db";
 
 export default function Home() {
   const router = useRouter();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
+  const [interactions, setInteractions] = useState<InteractionRoom[]>([]);
 
   const fetchData = () => {
     fetch("/api/characters")
@@ -17,6 +18,10 @@ export default function Home() {
     fetch("/api/chatrooms")
       .then((res) => res.json())
       .then(setChatrooms);
+    fetch("/api/interactions")
+      .then((res) => res.json())
+      .then(setInteractions)
+      .catch(() => setInteractions([])); // Handle gracefully if not found
   };
 
   useEffect(() => {
@@ -59,6 +64,14 @@ export default function Home() {
     fetchData();
   };
 
+  const deleteInteraction = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this interaction session?")) return;
+    await fetch(`/api/interactions/${id}`, { method: "DELETE" });
+    fetchData();
+  };
+
   const navigateToEdit = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     router.push(`/characters/${id}/edit`);
@@ -70,7 +83,7 @@ export default function Home() {
       <header className="flex justify-between items-end border-b border-border-subtle pb-8">
         <div>
           <h1 className="text-[68px] font-normal leading-[1] tracking-[-1.92px] text-text-primary">
-            Characters
+            Neon Character Chat
           </h1>
         </div>
         <Link
@@ -127,6 +140,63 @@ export default function Home() {
                 Create your first character →
               </Link>
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* Interactions / Simulations */}
+      <section className="space-y-5">
+        <div className="flex justify-between items-center">
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
+            Character Interactions
+          </h2>
+          <Link
+            href="/interactions/new"
+            className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
+          >
+            + Start Interaction
+          </Link>
+        </div>
+        <div className="space-y-2">
+          {interactions
+            .sort((a, b) => b.updatedAt - a.updatedAt)
+            .map((room) => {
+              const char1 = characters.find((c) => c.id === room.character1Id);
+              const char2 = characters.find((c) => c.id === room.character2Id);
+              if (!char1 || !char2) return null;
+
+              return (
+                <Link
+                  key={room.id}
+                  href={`/interactions/${room.id}`}
+                  className="group flex items-center justify-between bg-surface-dark border border-border-subtle rounded-xl px-5 py-4 hover:border-brand-green/40 hover:bg-surface-elevated transition-all duration-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-brand-green/70 bg-brand-green/8 border border-brand-green/15 rounded px-2 py-0.5 tracking-[-0.2px]">
+                      {room.id.split("-").pop()?.substring(0, 6) || "SIM"}
+                    </span>
+                    <span className="text-[15px] text-text-secondary group-hover:text-text-primary transition-colors duration-200">
+                      {char1.name} <span className="text-[12px] text-text-muted mx-1">vs</span> {char2.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-5">
+                    <span className="text-[12px] text-text-muted font-mono tabular-nums">
+                      {new Date(room.updatedAt).toLocaleString()}
+                    </span>
+                    <button
+                      onClick={(e) => deleteInteraction(e, room.id)}
+                      className="text-[12px] text-error/50 hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </Link>
+              );
+            })}
+          {interactions.length === 0 && (
+            <p className="text-[15px] text-text-muted py-8 text-center">
+              No active interactions. Watch two characters converse!
+            </p>
           )}
         </div>
       </section>

@@ -28,6 +28,21 @@ export interface Chatroom {
   updatedAt: number;
 }
 
+export interface InteractionMessage {
+  characterId: string; // Shows which character spoke
+  content: string;
+  timestamp: number;
+}
+
+export interface InteractionRoom {
+  id: string;
+  character1Id: string;
+  character2Id: string;
+  nextTurn: 'char1' | 'char2'; // Tracks whose turn it is to speak next (using string keys 'char1' or 'char2' to represent character1Id or character2Id)
+  messages: InteractionMessage[];
+  updatedAt: number;
+}
+
 const getFilePath = (filename: string) => path.join(DB_DIR, `${filename}.json`);
 
 function readDB<T>(filename: string, defaultData: T): T {
@@ -51,3 +66,7 @@ export const saveCharacters = (data: Character[]) => writeDB("characters", data)
 // Chatroom CRUD
 export const getChatrooms = () => readDB<Chatroom[]>("chatrooms", []);
 export const saveChatrooms = (data: Chatroom[]) => writeDB("chatrooms", data);
+
+// InteractionRoom CRUD
+export const getInteractionRooms = () => readDB<InteractionRoom[]>("interactions", []);
+export const saveInteractionRooms = (data: InteractionRoom[]) => writeDB("interactions", data);
