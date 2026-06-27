@@ -31,8 +31,8 @@ export default function NewCharacterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-lg space-y-6">
+    <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="w-full max-w-2xl space-y-8">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-[13px] text-text-muted hover:text-text-secondary transition-colors font-mono"
@@ -40,7 +40,7 @@ export default function NewCharacterPage() {
           ← Back
         </Link>
 
-        <div className="bg-surface-dark border border-border-subtle rounded-2xl p-8 space-y-7 relative overflow-hidden">
+        <div className="bg-surface-dark border border-border-subtle rounded-2xl p-10 space-y-8 relative overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/40 to-transparent" />
 
           <div>
@@ -53,7 +53,7 @@ export default function NewCharacterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
                 Name
               </label>
@@ -62,12 +62,12 @@ export default function NewCharacterPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
-                placeholder="e.g. Neon Cyberpunk"
+                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-5 py-4 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
+                placeholder="e.g. AI Assistent"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
                 System Persona
               </label>
@@ -75,12 +75,12 @@ export default function NewCharacterPage() {
                 required
                 value={formData.persona}
                 onChange={(e) => setFormData({ ...formData, persona: e.target.value })}
-                className="w-full h-32 bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200 resize-none leading-[24px]"
+                className="w-full h-48 bg-surface-elevated border border-border-subtle rounded-xl px-5 py-4 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200 resize-none leading-[24px]"
                 placeholder="Describe the character's personality, background, and tone..."
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
                 First Greeting
               </label>
@@ -89,7 +89,7 @@ export default function NewCharacterPage() {
                 type="text"
                 value={formData.greeting}
                 onChange={(e) => setFormData({ ...formData, greeting: e.target.value })}
-                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
+                className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-5 py-4 text-[16px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.3)] transition-all duration-200"
                 placeholder="e.g. System online. How can I assist you today?"
               />
             </div>

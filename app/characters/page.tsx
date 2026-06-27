@@ -50,7 +50,7 @@ export default function NewCharacterPage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full bg-surface-elevated border border-border-subtle rounded-xl px-4 py-3 text-[16px] text-text-primary focus:outline-none focus:border-brand-green"
-              placeholder="e.g. Neon Cyberpunk"
+              placeholder="e.g. AI Assistent"
             />
           </div>
 
