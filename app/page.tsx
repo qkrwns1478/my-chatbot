@@ -4,11 +4,13 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Character, Chatroom, InteractionRoom } from "@/lib/db";
+import { useConfirm } from "@/context/ConfirmContext";
 
 import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [interactions, setInteractions] = useState<InteractionRoom[]>([]);
@@ -53,7 +55,13 @@ export default function Home() {
 
   const deleteCharacter = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this persona?")) return;
+    const ok = await confirm({
+      title: "Delete Character",
+      message: "Are you sure you want to delete this character?",
+      confirmText: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     await fetch(`/api/characters/${id}`, { method: "DELETE" });
     fetchData();
   };
@@ -61,7 +69,13 @@ export default function Home() {
   const deleteChatroom = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this session?")) return;
+    const ok = await confirm({
+      title: "Delete Session",
+      message: "Are you sure you want to delete this session?",
+      confirmText: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     await fetch(`/api/chatrooms/${id}`, { method: "DELETE" });
     fetchData();
   };
@@ -69,7 +83,13 @@ export default function Home() {
   const deleteInteraction = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this interaction session?")) return;
+    const ok = await confirm({
+      title: "Delete Interaction",
+      message: "Are you sure you want to delete this interaction session?",
+      confirmText: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
     await fetch(`/api/interactions/${id}`, { method: "DELETE" });
     fetchData();
   };
@@ -107,7 +127,7 @@ export default function Home() {
       <section className="space-y-5">
         <div className="flex justify-between items-center">
           <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
-            Available Characters
+            Your Characters
           </h2>
           <Link
             href="/characters/new"
@@ -199,9 +219,6 @@ export default function Home() {
                   className="group flex items-center justify-between bg-surface-dark border border-border-subtle rounded-xl px-5 py-4 hover:border-brand-green/40 hover:bg-surface-elevated transition-all duration-200"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] font-mono text-brand-green/70 bg-brand-green/8 border border-brand-green/15 rounded px-2 py-0.5 tracking-[-0.2px]">
-                      {room.id.split("-").pop()?.substring(0, 6) || "SIM"}
-                    </span>
                     <span className="text-[15px] text-text-secondary group-hover:text-text-primary transition-colors duration-200">
                       {char1.name} <span className="text-[12px] text-text-muted mx-1">vs</span> {char2.name}
                     </span>
@@ -245,9 +262,6 @@ export default function Home() {
                   className="group flex items-center justify-between bg-surface-dark border border-border-subtle rounded-xl px-5 py-4 hover:border-brand-green/40 hover:bg-surface-elevated transition-all duration-200"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] font-mono text-brand-green/70 bg-brand-green/8 border border-brand-green/15 rounded px-2 py-0.5 tracking-[-0.2px]">
-                      {room.id.split("-")[0]}
-                    </span>
                     <span className="text-[15px] text-text-secondary group-hover:text-text-primary transition-colors duration-200">
                       {char ? `Chat with ${char.name}` : "Unknown Character"}
                     </span>
