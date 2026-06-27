@@ -6,6 +6,7 @@ import { Character, InteractionMessage } from "@/lib/db";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AVAILABLE_MODELS from "@/data/models";
+import Image from "next/image";
 
 export default function InteractionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -131,9 +132,23 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
 
           return (
             <div key={idx} className={`flex flex-col ${isChar1 ? "items-start" : "items-end"}`}>
-              <span className="text-[12px] font-mono text-text-muted mb-1.5">
-                {charName}
-              </span>
+              <div className="flex items-center gap-2 mb-1.5 flex-row">
+                {isChar1 ? (
+                  <>
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                      <Image src={char1.imageUrl || "/pictures/default.jpg"} alt={charName} fill className="object-cover" />
+                    </div>
+                    <span className="text-[12px] font-mono text-text-muted">{charName}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[12px] font-mono text-text-muted">{charName}</span>
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                      <Image src={char2.imageUrl || "/pictures/default.jpg"} alt={charName} fill className="object-cover" />
+                    </div>
+                  </>
+                )}
+              </div>
               <div
                 className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] overflow-hidden ${
                   isChar1
@@ -172,7 +187,23 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
 
         {isLoading && (
           <div className={`flex flex-col ${nextTurn === "char1" ? "items-start" : "items-end"}`}>
-            <span className="text-[12px] font-mono text-text-muted mb-1.5">{activeChar.name} is typing...</span>
+              <div className="flex items-center gap-2 mb-1.5 flex-row">
+                {nextTurn === "char1" ? (
+                  <>
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                      <Image src={char1.imageUrl || "/pictures/default.jpg"} alt={activeChar.name} fill className="object-cover" />
+                    </div>
+                    <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                      <Image src={char2.imageUrl || "/pictures/default.jpg"} alt={activeChar.name} fill className="object-cover" />
+                    </div>
+                  </>
+                )}
+              </div>
             <div className={`border border-border-subtle rounded-2xl px-5 py-4 flex items-center gap-1.5 ${nextTurn === "char1" ? "bg-surface-elevated rounded-bl-sm" : "bg-surface-dark border-brand-green/30 rounded-br-sm"}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-2" />

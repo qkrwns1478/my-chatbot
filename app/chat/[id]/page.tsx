@@ -6,11 +6,13 @@ import { Message } from "@/lib/db";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AVAILABLE_MODELS from "@/data/models";
+import Image from "next/image";
 
 export default function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [messages, setMessages] = useState<Message[]>([]);
   const [characterName, setCharacterName] = useState<string>("Character");
+  const [characterImage, setCharacterImage] = useState<string>("/pictures/default.jpg");
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id);
@@ -32,7 +34,10 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         if (charRes.ok) {
           const charData = await charRes.json();
           const char = charData.find((c: { id: string }) => c.id === roomData.characterId);
-          if (char) setCharacterName(char.name);
+          if (char) {
+            setCharacterName(char.name);
+            setCharacterImage(char.imageUrl || "/pictures/default.jpg");
+          }
         }
       } catch (error) {
         console.error(error);
@@ -89,7 +94,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           </Link>
           <div className="w-px h-4 bg-border-subtle" />
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-green shadow-[0_0_5px_#00e599]" />
             <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">
               {characterName}
             </h1>
@@ -112,9 +116,16 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
       <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-            <span className="text-[12px] font-mono text-text-muted mb-1.5">
-              {msg.role === "user" ? "You" : characterName}
-            </span>
+            {msg.role === "user" ? (
+              <span className="text-[12px] font-mono text-text-muted mb-1.5">You</span>
+            ) : (
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated">
+                  <Image src={characterImage} alt={characterName} fill className="object-cover" />
+                </div>
+                <span className="text-[12px] font-mono text-text-muted">{characterName}</span>
+              </div>
+            )}
             <div
               className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] overflow-hidden ${
                 msg.role === "user"
@@ -183,7 +194,12 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
         {isLoading && (
           <div className="flex flex-col items-start">
-            <span className="text-[12px] font-mono text-text-muted mb-1.5">{characterName}</span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated">
+                <Image src={characterImage} alt={characterName} fill className="object-cover" />
+              </div>
+              <span className="text-[12px] font-mono text-text-muted">{characterName}</span>
+            </div>
             <div className="bg-surface-elevated border border-border-subtle rounded-2xl rounded-bl-sm px-5 py-4 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-2" />

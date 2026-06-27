@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       name: body.name,
       persona: body.persona,
       greeting: body.greeting || "Hello.",
+      imageUrl: body.imageUrl || undefined,
     };
 
     const characters = getCharacters();

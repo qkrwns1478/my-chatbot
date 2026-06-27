@@ -12,7 +12,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: "Character not found" }, { status: 404 });
     }
 
-    characters[index] = { ...characters[index], name: body.name, persona: body.persona, greeting: body.greeting };
+    characters[index] = {
+      ...characters[index],
+      name: body.name,
+      persona: body.persona,
+      greeting: body.greeting,
+      imageUrl: body.imageUrl
+    };
     saveCharacters(characters);
 
     return NextResponse.json(characters[index]);

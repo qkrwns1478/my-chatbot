@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Character, Chatroom, InteractionRoom } from "@/lib/db";
 
+import Image from "next/image";
+
 export default function Home() {
   const router = useRouter();
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -107,11 +109,21 @@ export default function Home() {
               className="group relative bg-surface-dark border border-border-subtle rounded-2xl p-6 cursor-pointer hover:border-brand-green/50 hover:shadow-[0_0_28px_rgba(0,229,153,0.07)] transition-all duration-300 flex flex-col justify-between overflow-hidden"
             >
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div>
-                <h3 className="text-[18px] leading-[1.3] text-text-primary mb-2 group-hover:text-brand-green transition-colors duration-200">
-                  {char.name}
-                </h3>
-                <p className="text-[14px] text-text-tertiary leading-[21px] line-clamp-2">{char.persona}</p>
+              <div className="flex gap-4 items-start">
+                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-border-subtle bg-surface-elevated relative">
+                  <Image
+                    src={char.imageUrl || "/pictures/default.jpg"}
+                    alt={char.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-[18px] leading-[1.3] text-text-primary mb-2 group-hover:text-brand-green transition-colors duration-200">
+                    {char.name}
+                  </h3>
+                  <p className="text-[14px] text-text-tertiary leading-[21px] line-clamp-2">{char.persona}</p>
+                </div>
               </div>
               <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border-subtle">
                 <button

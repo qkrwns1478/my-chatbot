@@ -11,6 +11,7 @@ if (!fs.existsSync(DB_DIR)) {
 export interface Character {
   id: string;
   name: string;
+  imageUrl?: string;
   persona: string; // 성격, 배경 설정 등
   greeting: string;
 }
