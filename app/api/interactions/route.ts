@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     saveInteractionRooms(rooms);
 
     return NextResponse.json(newRoom, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to create interaction room" }, { status: 500 });
   }
 }
@@ -55,7 +55,7 @@ export async function GET() {
 
     const rooms = getInteractionRooms().filter(room => room.userId === session.userId);
     return NextResponse.json(rooms);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch interaction rooms" }, { status: 500 });
   }
 }

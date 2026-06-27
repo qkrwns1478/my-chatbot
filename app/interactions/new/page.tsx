@@ -57,8 +57,9 @@ export default function NewInteractionPage() {
 
       const room = await res.json();
       router.push(`/interactions/${room.id}`);
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
