@@ -1,17 +1,21 @@
 import { NextResponse } from "next/server";
 import { getCharacters, getChatrooms, saveChatrooms } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: Request) {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { chatroomId, message, model } = await req.json();
 
     const chatrooms = getChatrooms();
-    const chatroomIndex = chatrooms.findIndex((c) => c.id === chatroomId);
+    const chatroomIndex = chatrooms.findIndex((c) => c.id === chatroomId && c.userId === session.userId);
 
     if (chatroomIndex === -1) {
-      return NextResponse.json({ error: "Chatroom not found" }, { status: 404 });
+      return NextResponse.json({ error: "Chatroom not found or access denied" }, { status: 404 });
     }
 
     const chatroom = chatrooms[chatroomIndex];

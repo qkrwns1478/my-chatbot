@@ -1,17 +1,21 @@
 import { NextResponse } from "next/server";
 import { getCharacters, getInteractionRooms, saveInteractionRooms } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: Request) {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { roomId, model } = await req.json();
 
     const rooms = getInteractionRooms();
-    const roomIndex = rooms.findIndex((c) => c.id === roomId);
+    const roomIndex = rooms.findIndex((c) => c.id === roomId && c.userId === session.userId);
 
     if (roomIndex === -1) {
-      return NextResponse.json({ error: "Interaction room not found" }, { status: 404 });
+      return NextResponse.json({ error: "Interaction room not found or access denied" }, { status: 404 });
     }
 
     const room = rooms[roomIndex];

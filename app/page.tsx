@@ -79,6 +79,11 @@ export default function Home() {
     router.push(`/characters/${id}/edit`);
   };
 
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
   return (
     <main className="min-h-screen p-8 max-w-5xl mx-auto space-y-16">
       {/* Header */}
@@ -88,19 +93,29 @@ export default function Home() {
             Neon Character Chat
           </h1>
         </div>
-        <Link
-          href="/characters/new"
-          className="text-[15px] text-brand-green bg-brand-green/10 border border-brand-green/30 hover:border-brand-green hover:bg-brand-green/20 px-6 py-3 rounded-xl transition-all duration-200 tracking-[-0.3px] shadow-[0_0_16px_rgba(0,229,153,0)] hover:shadow-[0_0_16px_rgba(0,229,153,0.12)]"
-        >
-          + Add Persona
-        </Link>
+        <div className="flex gap-4 items-center">
+          <button
+            onClick={logout}
+            className="text-[14px] text-text-muted hover:text-text-primary transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* Characters */}
       <section className="space-y-5">
-        <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
-          Available Characters
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
+            Available Characters
+          </h2>
+          <Link
+            href="/characters/new"
+            className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
+          >
+            + Add Character
+          </Link>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {characters.map((char) => (
             <div

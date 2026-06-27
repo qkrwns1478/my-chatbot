@@ -8,8 +8,15 @@ if (!fs.existsSync(DB_DIR)) {
   fs.mkdirSync(DB_DIR, { recursive: true });
 }
 
+export interface User {
+  id: string;
+  email: string;
+  password: string; // Hashed
+}
+
 export interface Character {
   id: string;
+  userId: string;
   name: string;
   imageUrl?: string;
   persona: string; // 성격, 배경 설정 등
@@ -24,6 +31,7 @@ export interface Message {
 
 export interface Chatroom {
   id: string;
+  userId: string;
   characterId: string;
   messages: Message[];
   updatedAt: number;
@@ -37,6 +45,7 @@ export interface InteractionMessage {
 
 export interface InteractionRoom {
   id: string;
+  userId: string;
   character1Id: string;
   character2Id: string;
   nextTurn: 'char1' | 'char2'; // Tracks whose turn it is to speak next (using string keys 'char1' or 'char2' to represent character1Id or character2Id)
@@ -71,3 +80,8 @@ export const saveChatrooms = (data: Chatroom[]) => writeDB("chatrooms", data);
 // InteractionRoom CRUD
 export const getInteractionRooms = () => readDB<InteractionRoom[]>("interactions", []);
 export const saveInteractionRooms = (data: InteractionRoom[]) => writeDB("interactions", data);
+
+// User CRUD
+export const getUsers = () => readDB<User[]>("users", []);
+export const saveUsers = (data: User[]) => writeDB("users", data);
+

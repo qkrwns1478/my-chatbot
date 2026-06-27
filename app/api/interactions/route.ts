@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCharacters, getInteractionRooms, saveInteractionRooms } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { character1Id, character2Id } = await req.json();
 
     if (!character1Id || !character2Id) {
@@ -10,10 +14,10 @@ export async function POST(req: Request) {
     }
 
     const characters = getCharacters();
-    const char1 = characters.find(c => c.id === character1Id);
+    const char1 = characters.find(c => c.id === character1Id && c.userId === session.userId);
 
     if (!char1) {
-      return NextResponse.json({ error: "Character 1 not found" }, { status: 404 });
+      return NextResponse.json({ error: "Character 1 not found or unauthorized" }, { status: 404 });
     }
 
     const rooms = getInteractionRooms();
@@ -21,6 +25,7 @@ export async function POST(req: Request) {
 
     const newRoom = {
       id: newRoomId,
+      userId: session.userId,
       character1Id,
       character2Id,
       nextTurn: 'char2' as const, // Character 1 speaks first (greeting), so char 2 is next
@@ -45,7 +50,10 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
-    const rooms = getInteractionRooms();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const rooms = getInteractionRooms().filter(room => room.userId === session.userId);
     return NextResponse.json(rooms);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch interaction rooms" }, { status: 500 });
