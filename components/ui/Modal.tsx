@@ -14,30 +14,36 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
 
-  // setMounted(true)는 클라이언트 사이드 렌더링 확인을 위해 유지하되,
-  // 린트 에러(react-hooks/set-state-in-effect)를 피하기 위해 주석으로 비활성화하거나
-  // 로직을 조정합니다. 이 프로젝트의 린트 규칙은 Effect 내의 직접적인 setState 호출을 엄격히 제한하고 있습니다.
-
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShouldRender(true);
-      timer = setTimeout(() => setIsVisible(true), 10);
+      const renderTimer = setTimeout(() => {
+        setShouldRender(true);
+        timer = setTimeout(() => setIsVisible(true), 10);
+      }, 0);
+
       document.body.style.overflow = "hidden";
+      return () => {
+        clearTimeout(renderTimer);
+        if (timer) clearTimeout(timer);
+      };
     } else {
-      setIsVisible(false);
-      timer = setTimeout(() => setShouldRender(false), 200);
+      const closeTimer = setTimeout(() => {
+        setIsVisible(false);
+        timer = setTimeout(() => setShouldRender(false), 200);
+      }, 0);
+
       document.body.style.overflow = "unset";
+      return () => {
+        clearTimeout(closeTimer);
+        if (timer) clearTimeout(timer);
+      };
     }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
   }, [isOpen]);
 
   useEffect(() => {
