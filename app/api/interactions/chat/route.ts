@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { roomId, model } = await req.json();
+    const { roomId, model, action } = await req.json();
 
     const rooms = getInteractionRooms();
     const roomIndex = rooms.findIndex((c) => c.id === roomId && c.userId === session.userId);
@@ -19,6 +19,17 @@ export async function POST(req: Request) {
     }
 
     const room = rooms[roomIndex];
+
+    if (action === "regenerate") {
+      if (room.messages.length > 0) {
+        room.messages.pop();
+        // Turn back the nextTurn
+        room.nextTurn = room.nextTurn === "char1" ? "char2" : "char1";
+      } else {
+        return NextResponse.json({ error: "No message to regenerate" }, { status: 400 });
+      }
+    }
+
     const characters = getCharacters();
 
     const char1 = characters.find((c) => c.id === room.character1Id);

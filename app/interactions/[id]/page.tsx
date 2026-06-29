@@ -78,6 +78,36 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  const regenerateResponse = async () => {
+    if (isLoading || messages.length === 0) return;
+
+    setIsLoading(true);
+    setMessages((prev) => prev.slice(0, -1));
+    // Optimistically update nextTurn for UI
+    setNextTurn((prev) => (prev === "char1" ? "char2" : "char1"));
+
+    try {
+      const res = await fetch("/api/interactions/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId: id, model: selectedModel, action: "regenerate" }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessages((prev) => [...prev, data.reply]);
+        setNextTurn((prev) => (prev === "char1" ? "char2" : "char1"));
+      } else {
+        console.error(data.error);
+        // On error, we might want to stay on the reverted turn or recover
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!char1 || !char2) return null; // or a loading state
 
   const activeChar = nextTurn === "char1" ? char1 : char2;
@@ -95,9 +125,6 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
           </Link>
           <div className="w-px h-4 bg-border-subtle" />
           <div className="flex items-center gap-4">
-            <span className="text-[12px] font-mono text-brand-purple/70 bg-brand-green/8 border border-brand-green/15 rounded px-2 py-0.5 uppercase tracking-wide">
-              Simulation
-            </span>
             <div className="flex items-center gap-2">
               <h1 className="text-[16px] font-medium text-text-primary tracking-tight">
                 {char1.name} <span className="text-text-muted text-[13px] font-normal mx-1">vs</span> {char2.name}
@@ -181,6 +208,14 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
                   </ReactMarkdown>
                 </div>
               </div>
+              {idx === messages.length - 1 && !isLoading && (
+                <button
+                  onClick={regenerateResponse}
+                  className={`text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors ${isChar1 ? "ml-1" : "mr-1"}`}
+                >
+                  Regenerate
+                </button>
+              )}
             </div>
           );
         })}
