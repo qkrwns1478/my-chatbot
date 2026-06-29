@@ -167,17 +167,12 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
       {/* Header */}
       <header className="px-5 py-4 border-b border-border-subtle bg-surface-dark/80 backdrop-blur-[15px] flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="text-[13px] font-mono text-text-muted hover:text-text-secondary transition-colors"
-          >
+          <Link href="/" className="text-[13px] font-mono text-text-muted hover:text-text-secondary transition-colors">
             ←
           </Link>
           <div className="w-px h-4 bg-border-subtle" />
           <div className="flex items-center gap-2">
-            <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">
-              {characterName}
-            </h1>
+            <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">{characterName}</h1>
           </div>
         </div>
         <select
@@ -208,7 +203,9 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
               </div>
             )}
             <div
-              ref={(el) => { messageRefs.current[idx] = el; }}
+              ref={(el) => {
+                messageRefs.current[idx] = el;
+              }}
               style={editingIndex === idx ? { width: editWidth } : {}}
               className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] ${
                 msg.role === "user"
@@ -222,15 +219,15 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                     <textarea
                       ref={(el) => {
                         if (el) {
-                          el.style.height = 'auto';
-                          el.style.height = el.scrollHeight + 'px';
+                          el.style.height = "auto";
+                          el.style.height = el.scrollHeight + "px";
                         }
                       }}
                       value={editInput}
                       onChange={(e) => {
                         setEditInput(e.target.value);
-                        e.target.style.height = 'auto';
-                        e.target.style.height = e.target.scrollHeight + 'px';
+                        e.target.style.height = "auto";
+                        e.target.style.height = e.target.scrollHeight + "px";
                       }}
                       className="bg-transparent border-none p-0 text-[16px] leading-[26px] text-text-primary focus:outline-none w-full resize-none overflow-hidden block"
                       autoFocus
@@ -251,7 +248,10 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                       ),
                       strong: ({ ...props }) => <strong className="font-medium text-text-primary" {...props} />,
                       h1: ({ ...props }) => (
-                        <h1 className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2" {...props} />
+                        <h1
+                          className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2"
+                          {...props}
+                        />
                       ),
                       h2: ({ ...props }) => (
                         <h2 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
@@ -259,8 +259,12 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                       h3: ({ ...props }) => (
                         <h3 className="text-[16px] font-medium mt-4 mb-2 text-text-secondary" {...props} />
                       ),
-                      ul: ({ ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
-                      ol: ({ ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                      ul: ({ ...props }) => (
+                        <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />
+                      ),
+                      ol: ({ ...props }) => (
+                        <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />
+                      ),
                       li: ({ ...props }) => <li className="pl-1 text-text-primary" {...props} />,
                       blockquote: ({ ...props }) => (
                         <blockquote
@@ -293,44 +297,44 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                 )}
               </div>
             </div>
-	            {editingIndex === idx ? (
-	              <div className="flex gap-2 mt-2 mr-1">
-	                <button
-	                  onClick={() => {
-	                    setEditingIndex(null);
-	                    setEditWidth("auto");
-	                  }}
-	                  className="text-[12px] text-text-muted hover:text-text-primary transition-colors bg-surface-dark px-3 py-1.5 rounded-md border border-border-subtle"
-	                >
-	                  Cancel
-	                </button>
-	                <button
-	                  onClick={() => {
-	                    editMessage(idx);
-	                    setEditWidth("auto");
-	                  }}
-	                  className="text-[12px] text-brand-green font-medium hover:text-brand-green-mid transition-colors bg-brand-green/10 px-3 py-1.5 rounded-md border border-brand-green/20"
-	                >
-	                  Save
-	                </button>
-	              </div>
-	            ) : (
-	              msg.role === "user" && (
-	                <button
-	                  onClick={() => {
-	                    const el = messageRefs.current[idx];
-	                    if (el) {
-	                      setEditWidth(el.offsetWidth);
-	                    }
-	                    setEditingIndex(idx);
-	                    setEditInput(msg.content);
-	                  }}
-	                  className="text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors mr-1"
-	                >
-	                  Edit
-	                </button>
-	              )
-	            )}
+            {editingIndex === idx ? (
+              <div className="flex gap-2 mt-2 mr-1">
+                <button
+                  onClick={() => {
+                    setEditingIndex(null);
+                    setEditWidth("auto");
+                  }}
+                  className="text-[12px] text-text-muted hover:text-text-primary transition-colors bg-surface-dark px-3 py-1.5 rounded-md border border-border-subtle"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    editMessage(idx);
+                    setEditWidth("auto");
+                  }}
+                  className="text-[12px] text-brand-green font-medium hover:text-brand-green-mid transition-colors bg-brand-green/10 px-3 py-1.5 rounded-md border border-brand-green/20"
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              msg.role === "user" && (
+                <button
+                  onClick={() => {
+                    const el = messageRefs.current[idx];
+                    if (el) {
+                      setEditWidth(el.offsetWidth);
+                    }
+                    setEditingIndex(idx);
+                    setEditInput(msg.content);
+                  }}
+                  className="text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors mr-1"
+                >
+                  Edit
+                </button>
+              )
+            )}
             {msg.role === "assistant" && idx === messages.length - 1 && !isLoading && (
               <button
                 onClick={regenerateResponse}
@@ -340,7 +344,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
               </button>
             )}
           </div>
-
         ))}
 
         {isLoading && (

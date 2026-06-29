@@ -117,10 +117,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
       {/* Header */}
       <header className="px-5 py-4 border-b border-border-subtle bg-surface-dark/80 backdrop-blur-[15px] flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="text-[13px] font-mono text-text-muted hover:text-text-secondary transition-colors"
-          >
+          <Link href="/" className="text-[13px] font-mono text-text-muted hover:text-text-secondary transition-colors">
             ←
           </Link>
           <div className="w-px h-4 bg-border-subtle" />
@@ -148,9 +145,9 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
         <div className="flex justify-center mb-8">
-            <div className="text-[12px] font-mono text-text-muted bg-surface-elevated border border-border-subtle rounded-full px-4 py-1.5 shadow-sm">
-                Simulation Started
-            </div>
+          <div className="text-[12px] font-mono text-text-muted bg-surface-elevated border border-border-subtle rounded-full px-4 py-1.5 shadow-sm">
+            Simulation Started
+          </div>
         </div>
 
         {messages.map((msg, idx) => {
@@ -163,7 +160,12 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
                 {isChar1 ? (
                   <>
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
-                      <Image src={char1.imageUrl || "/pictures/default.jpg"} alt={charName} fill className="object-cover" />
+                      <Image
+                        src={char1.imageUrl || "/pictures/default.jpg"}
+                        alt={charName}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <span className="text-[12px] font-mono text-text-muted">{charName}</span>
                   </>
@@ -171,7 +173,12 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
                   <>
                     <span className="text-[12px] font-mono text-text-muted">{charName}</span>
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
-                      <Image src={char2.imageUrl || "/pictures/default.jpg"} alt={charName} fill className="object-cover" />
+                      <Image
+                        src={char2.imageUrl || "/pictures/default.jpg"}
+                        alt={charName}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </>
                 )}
@@ -188,16 +195,23 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
                     remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({ ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
-                      a: ({ ...props }) => <a className="text-brand-green hover:text-brand-green-mid underline" {...props} />,
+                      a: ({ ...props }) => (
+                        <a className="text-brand-green hover:text-brand-green-mid underline" {...props} />
+                      ),
                       code: (props) => {
                         const { children, className, ...rest } = props;
                         const match = /language-(\w+)/.exec(className || "");
                         return match ? (
                           <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono">
-                            <code className={className} {...rest}>{children}</code>
+                            <code className={className} {...rest}>
+                              {children}
+                            </code>
                           </pre>
                         ) : (
-                          <code className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[13px] font-mono text-brand-green-mid" {...rest}>
+                          <code
+                            className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[13px] font-mono text-brand-green-mid"
+                            {...rest}
+                          >
                             {children}
                           </code>
                         );
@@ -222,24 +236,36 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
 
         {isLoading && (
           <div className={`flex flex-col ${nextTurn === "char1" ? "items-start" : "items-end"}`}>
-              <div className="flex items-center gap-2 mb-1.5 flex-row">
-                {nextTurn === "char1" ? (
-                  <>
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
-                      <Image src={char1.imageUrl || "/pictures/default.jpg"} alt={activeChar.name} fill className="object-cover" />
-                    </div>
-                    <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
-                      <Image src={char2.imageUrl || "/pictures/default.jpg"} alt={activeChar.name} fill className="object-cover" />
-                    </div>
-                  </>
-                )}
-              </div>
-            <div className={`border border-border-subtle rounded-2xl px-5 py-4 flex items-center gap-1.5 ${nextTurn === "char1" ? "bg-surface-elevated rounded-bl-sm" : "bg-surface-dark border-brand-green/30 rounded-br-sm"}`}>
+            <div className="flex items-center gap-2 mb-1.5 flex-row">
+              {nextTurn === "char1" ? (
+                <>
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                    <Image
+                      src={char1.imageUrl || "/pictures/default.jpg"}
+                      alt={activeChar.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
+                    <Image
+                      src={char2.imageUrl || "/pictures/default.jpg"}
+                      alt={activeChar.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <div
+              className={`border border-border-subtle rounded-2xl px-5 py-4 flex items-center gap-1.5 ${nextTurn === "char1" ? "bg-surface-elevated rounded-bl-sm" : "bg-surface-dark border-brand-green/30 rounded-br-sm"}`}
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-2" />
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-3" />
@@ -258,13 +284,15 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
           className="w-full max-w-sm bg-brand-green hover:bg-brand-green-mid text-page-bg font-medium px-6 py-4 rounded-xl transition-all duration-200 disabled:opacity-40 shadow-[0_0_0px_rgba(0,229,153,0)] hover:shadow-[0_0_16px_rgba(0,229,153,0.3)] text-[15px] tracking-[-0.3px] flex items-center justify-center gap-2"
         >
           {isLoading ? (
-             <span>Waiting for response...</span>
+            <span>Waiting for response...</span>
           ) : (
             <>
-                <span>Click to generate next response for <b>{activeChar.name}</b></span>
-                <span className="text-page-bg/70 group-hover:translate-x-1 transition-transform">→</span>
+              <span>
+                Click to generate next response for <b>{activeChar.name}</b>
+              </span>
+              <span className="text-page-bg/70 group-hover:translate-x-1 transition-transform">→</span>
             </>
-           )}
+          )}
         </button>
       </div>
     </div>
