@@ -39,9 +39,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Character not found" }, { status: 404 });
     }
 
-    const userMessage = { role: "user" as const, content: message, timestamp: Date.now() };
-    chatroom.messages.push(userMessage);
-
     const recentMessages = chatroom.messages.slice(-10).map((msg) => ({
       role: msg.role,
       content: msg.content,
