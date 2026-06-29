@@ -8,7 +8,7 @@ export async function GET() {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const characters = getCharacters().filter(c => c.userId === session.userId);
+    const characters = getCharacters().filter((c) => c.userId === session.userId);
     return NextResponse.json(characters);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

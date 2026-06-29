@@ -53,9 +53,9 @@ export async function POST(req: Request) {
     const apiMessages = [
       {
         role: "system",
-        content: `You are playing the role of ${activeCharacter.name}. ${activeCharacter.persona}\n\nYou are having a conversation with ${otherCharacter.name}. Respond naturally in character as ${activeCharacter.name}.`
+        content: `You are playing the role of ${activeCharacter.name}. ${activeCharacter.persona}\n\nYou are having a conversation with ${otherCharacter.name}. Respond naturally in character as ${activeCharacter.name}.`,
       },
-      ...recentMessages
+      ...recentMessages,
     ];
 
     const selectedModel = model || "google/gemini-2.5-flash";
@@ -83,9 +83,9 @@ export async function POST(req: Request) {
     const replyContent = data.choices[0].message.content;
 
     const newMessage = {
-        characterId: activeCharacterId,
-        content: replyContent,
-        timestamp: Date.now()
+      characterId: activeCharacterId,
+      content: replyContent,
+      timestamp: Date.now(),
     };
 
     room.messages.push(newMessage);

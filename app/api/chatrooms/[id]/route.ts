@@ -30,7 +30,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const { id } = await params;
     const chatrooms = getChatrooms();
 
-    const chatroomToDelete = chatrooms.find(c => c.id === id);
+    const chatroomToDelete = chatrooms.find((c) => c.id === id);
     if (chatroomToDelete && chatroomToDelete.userId !== session.userId) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
@@ -66,7 +66,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "Invalid message index" }, { status: 400 });
     }
 
-    // 수정 시 해당 인덱스 이후의 메시지들은 삭제 (대화 흐름 일관성)
+    // Delete messages after that index when modified
     chatroom.messages[index].content = content;
     chatroom.messages[index].timestamp = Date.now();
     chatroom.messages = chatroom.messages.slice(0, index + 1);

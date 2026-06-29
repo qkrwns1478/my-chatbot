@@ -84,9 +84,7 @@ export default function NewInteractionPage() {
             ← Back
           </Link>
         </div>
-        <h1 className="text-[32px] font-medium text-text-primary tracking-[-0.6px]">
-          New Interaction
-        </h1>
+        <h1 className="text-[32px] font-medium text-text-primary tracking-[-0.6px]">New Interaction</h1>
         <p className="text-text-secondary">Select two characters to watch them converse.</p>
       </header>
 

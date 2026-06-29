@@ -91,9 +91,7 @@ export default function NewCharacterPage() {
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/40 to-transparent" />
 
           <div>
-            <p className="text-[12px] font-mono uppercase tracking-[0.12em] text-brand-green mb-3">
-              New Persona
-            </p>
+            <p className="text-[12px] font-mono uppercase tracking-[0.12em] text-brand-green mb-3">New Persona</p>
             <h1 className="text-[48px] font-normal leading-[54px] tracking-[-1.92px] text-text-primary">
               Create Character
             </h1>
@@ -102,9 +100,7 @@ export default function NewCharacterPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex gap-6 items-start">
               <div className="space-y-2 flex-shrink-0">
-                <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em] block">
-                  Image
-                </label>
+                <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em] block">Image</label>
                 <div className="relative w-32 h-32 rounded-xl border border-border-subtle overflow-hidden bg-surface-elevated flex flex-col items-center justify-center group">
                   {!formData.imageUrl && (
                     <input
@@ -117,15 +113,10 @@ export default function NewCharacterPage() {
                   )}
                   {formData.imageUrl ? (
                     <>
-                      <Image
-                        src={formData.imageUrl}
-                        alt="Thumbnail"
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={formData.imageUrl} alt="Thumbnail" fill className="object-cover" />
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
+                        onClick={() => setFormData((prev) => ({ ...prev, imageUrl: "" }))}
                         className="absolute top-1 right-1 bg-black/60 hover:bg-red-500/80 text-white rounded-md w-6 h-6 flex items-center justify-center text-sm z-20 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove image"
                       >
@@ -148,9 +139,7 @@ export default function NewCharacterPage() {
               </div>
 
               <div className="space-y-2 flex-1">
-                <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">
-                  Name
-                </label>
+                <label className="text-[12px] font-mono text-text-muted uppercase tracking-[0.08em]">Name</label>
                 <input
                   required
                   type="text"

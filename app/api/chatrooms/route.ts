@@ -8,7 +8,7 @@ export async function GET() {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const chatrooms = getChatrooms().filter(chat => chat.userId === session.userId);
+    const chatrooms = getChatrooms().filter((chat) => chat.userId === session.userId);
     return NextResponse.json(chatrooms);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     if (res.ok) {
-      router.push('/login');
+      router.push("/login");
     } else {
       const data = await res.json();
-      setError(data.error || 'Signup failed');
+      setError(data.error || "Signup failed");
     }
   };
 
@@ -42,7 +42,9 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted px-1">Email Address</label>
+            <label className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted px-1">
+              Email Address
+            </label>
             <input
               type="email"
               value={email}
@@ -80,7 +82,7 @@ export default function SignupPage() {
 
         <div className="mt-8 pt-8 border-t border-border-subtle text-center">
           <p className="text-[14px] text-text-muted">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link href="/login" className="text-brand-green hover:text-brand-green-mid font-medium transition-colors">
               Sign in
             </Link>

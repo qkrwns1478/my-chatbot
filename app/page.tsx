@@ -32,26 +32,29 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const startChat = useCallback(async (character: Character) => {
-    try {
-      const res = await fetch("/api/chatrooms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          characterId: character.id,
-          initialMessage: {
-            role: "assistant",
-            content: character.greeting,
-            timestamp: Date.now(),
-          },
-        }),
-      });
-      const newRoom = await res.json();
-      router.push(`/chat/${newRoom.id}`);
-    } catch (error) {
-      console.error("Failed to create chatroom", error);
-    }
-  }, [router]);
+  const startChat = useCallback(
+    async (character: Character) => {
+      try {
+        const res = await fetch("/api/chatrooms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            characterId: character.id,
+            initialMessage: {
+              role: "assistant",
+              content: character.greeting,
+              timestamp: Date.now(),
+            },
+          }),
+        });
+        const newRoom = await res.json();
+        router.push(`/chat/${newRoom.id}`);
+      } catch (error) {
+        console.error("Failed to create chatroom", error);
+      }
+    },
+    [router],
+  );
 
   const deleteCharacter = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -114,10 +117,7 @@ export default function Home() {
           </h1>
         </div>
         <div className="flex gap-4 items-center">
-          <button
-            onClick={logout}
-            className="text-[14px] text-text-muted hover:text-text-primary transition-colors"
-          >
+          <button onClick={logout} className="text-[14px] text-text-muted hover:text-text-primary transition-colors">
             Logout
           </button>
         </div>
@@ -126,9 +126,7 @@ export default function Home() {
       {/* Characters */}
       <section className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
-            Your Characters
-          </h2>
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Your Characters</h2>
           <Link
             href="/characters/new"
             className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
@@ -146,12 +144,7 @@ export default function Home() {
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="flex gap-4 items-start">
                 <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-border-subtle bg-surface-elevated relative">
-                  <Image
-                    src={char.imageUrl || "/pictures/default.jpg"}
-                    alt={char.name}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={char.imageUrl || "/pictures/default.jpg"} alt={char.name} fill className="object-cover" />
                 </div>
                 <div>
                   <h3 className="text-[18px] leading-[1.3] text-text-primary mb-2 group-hover:text-brand-green transition-colors duration-200">
@@ -194,9 +187,7 @@ export default function Home() {
       {/* Interactions / Simulations */}
       <section className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
-            Character Interactions
-          </h2>
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Character Interactions</h2>
           <Link
             href="/interactions/new"
             className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
@@ -247,9 +238,7 @@ export default function Home() {
 
       {/* Recent Sessions */}
       <section className="space-y-5">
-        <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">
-          Recent Sessions
-        </h2>
+        <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Recent Sessions</h2>
         <div className="space-y-2">
           {chatrooms
             .sort((a, b) => b.updatedAt - a.updatedAt)

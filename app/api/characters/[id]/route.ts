@@ -21,7 +21,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       name: body.name,
       persona: body.persona,
       greeting: body.greeting,
-      imageUrl: body.imageUrl
+      imageUrl: body.imageUrl,
     };
     saveCharacters(characters);
 
@@ -40,9 +40,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const { id } = await params;
     const characters = getCharacters();
 
-    const characterToDelete = characters.find(c => c.id === id);
+    const characterToDelete = characters.find((c) => c.id === id);
     if (characterToDelete && characterToDelete.userId !== session.userId) {
-       return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     const filteredCharacters = characters.filter((c) => c.id !== id);

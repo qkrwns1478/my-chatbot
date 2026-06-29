@@ -29,9 +29,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const { id } = await params;
     let rooms = getInteractionRooms();
 
-    const roomToDelete = rooms.find(r => r.id === id);
+    const roomToDelete = rooms.find((r) => r.id === id);
     if (roomToDelete && roomToDelete.userId !== session.userId) {
-       return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     rooms = rooms.filter((r) => r.id !== id);

@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const chatroom = chatrooms[chatroomIndex];
 
     if (action === "regenerate") {
-      // 마지막 메시지가 assistant인 경우만 재생성 가능
+      // Regenerable only if the last message is assistant
       if (chatroom.messages.length > 0 && chatroom.messages[chatroom.messages.length - 1].role === "assistant") {
         chatroom.messages.pop();
       } else {

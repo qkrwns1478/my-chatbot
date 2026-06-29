@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     }
 
     const characters = getCharacters();
-    const char1 = characters.find(c => c.id === character1Id && c.userId === session.userId);
+    const char1 = characters.find((c) => c.id === character1Id && c.userId === session.userId);
 
     if (!char1) {
       return NextResponse.json({ error: "Character 1 not found or unauthorized" }, { status: 404 });
@@ -28,13 +28,13 @@ export async function POST(req: Request) {
       userId: session.userId,
       character1Id,
       character2Id,
-      nextTurn: 'char2' as const, // Character 1 speaks first (greeting), so char 2 is next
+      nextTurn: "char2" as const, // Character 1 speaks first (greeting), so char 2 is next
       messages: [
         {
           characterId: character1Id,
           content: char1.greeting,
           timestamp: Date.now(),
-        }
+        },
       ],
       updatedAt: Date.now(),
     };
@@ -53,7 +53,7 @@ export async function GET() {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const rooms = getInteractionRooms().filter(room => room.userId === session.userId);
+    const rooms = getInteractionRooms().filter((room) => room.userId === session.userId);
     return NextResponse.json(rooms);
   } catch {
     return NextResponse.json({ error: "Failed to fetch interaction rooms" }, { status: 500 });

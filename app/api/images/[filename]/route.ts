@@ -4,10 +4,7 @@ import path from "path";
 
 const PICTURES_DIR = path.join(process.cwd(), "database", "pictures");
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ filename: string }> } // In Next 15, params is a promise
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ filename: string }> }) {
   const { filename } = await params;
 
   if (!filename) {
