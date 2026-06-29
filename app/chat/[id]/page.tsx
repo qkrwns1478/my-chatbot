@@ -16,7 +16,11 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editInput, setEditInput] = useState("");
+  const [editWidth, setEditWidth] = useState<number | string>("auto");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,6 +85,83 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
+  const editMessage = async (index: number) => {
+    if (!editInput.trim() || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/chatrooms/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index, content: editInput.trim() }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessages(data.messages);
+        setEditingIndex(null);
+        // 수정 후 자동으로 새로운 답변 생성
+        await fetchReply(data.messages);
+      } else {
+        console.error(data.error);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const regenerateResponse = async () => {
+    if (isLoading || messages.length === 0) return;
+    if (messages[messages.length - 1].role !== "assistant") return;
+
+    setIsLoading(true);
+    // UI에서 마지막 답변 제거 (낙관적 업데이트는 취향에 따라 선택, 여기서는 API 완료 후 교체)
+    setMessages((prev) => prev.slice(0, -1));
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatroomId: id, model: selectedModel, action: "regenerate" }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessages((prev) => [...prev, data.reply]);
+      } else {
+        console.error(data.error);
+        // 실패 시 원래 메시지 복구 로직이 필요할 수 있음
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchReply = async (currentMessages: Message[]) => {
+    setIsLoading(true);
+    try {
+      const lastUserMsg = currentMessages[currentMessages.length - 1].content;
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatroomId: id, message: lastUserMsg, model: selectedModel }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessages((prev) => [...prev, data.reply]);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen max-w-3xl mx-auto border-x border-border-subtle">
       {/* Header */}
@@ -127,69 +208,139 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
               </div>
             )}
             <div
-              className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] overflow-hidden ${
+              ref={(el) => { messageRefs.current[idx] = el; }}
+              style={editingIndex === idx ? { width: editWidth } : {}}
+              className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] ${
                 msg.role === "user"
                   ? "bg-brand-green-dark border border-brand-green/20 text-text-primary rounded-br-sm"
                   : "bg-surface-elevated border border-border-subtle text-text-primary rounded-bl-sm"
               }`}
             >
               <div className="space-y-2">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    p: ({ ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
-                    a: ({ ...props }) => (
-                      <a
-                        className="text-brand-green hover:text-brand-green-mid underline underline-offset-2 cursor-pointer"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        {...props}
-                      />
-                    ),
-                    strong: ({ ...props }) => <strong className="font-medium text-text-primary" {...props} />,
-                    h1: ({ ...props }) => (
-                      <h1 className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2" {...props} />
-                    ),
-                    h2: ({ ...props }) => (
-                      <h2 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
-                    ),
-                    h3: ({ ...props }) => (
-                      <h3 className="text-[16px] font-medium mt-4 mb-2 text-text-secondary" {...props} />
-                    ),
-                    ul: ({ ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
-                    ol: ({ ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
-                    li: ({ ...props }) => <li className="pl-1 text-text-primary" {...props} />,
-                    blockquote: ({ ...props }) => (
-                      <blockquote
-                        className="border-l-2 border-brand-green/50 pl-4 py-1 text-text-secondary italic my-4"
-                        {...props}
-                      />
-                    ),
-                    code: (props) => {
-                      const { children, className, ...rest } = props;
-                      const match = /language-(\w+)/.exec(className || "");
-                      return match ? (
-                        <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono text-text-secondary leading-[23.1px] tracking-[-0.28px]">
-                          <code className={className} {...rest}>
+                {editingIndex === idx ? (
+                  <div className="flex flex-col">
+                    <textarea
+                      ref={(el) => {
+                        if (el) {
+                          el.style.height = 'auto';
+                          el.style.height = el.scrollHeight + 'px';
+                        }
+                      }}
+                      value={editInput}
+                      onChange={(e) => {
+                        setEditInput(e.target.value);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = e.target.scrollHeight + 'px';
+                      }}
+                      className="bg-transparent border-none p-0 text-[16px] leading-[26px] text-text-primary focus:outline-none w-full resize-none overflow-hidden block"
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ ...props }) => <p className="mb-4 last:mb-0 leading-[26px]" {...props} />,
+                      a: ({ ...props }) => (
+                        <a
+                          className="text-brand-green hover:text-brand-green-mid underline underline-offset-2 cursor-pointer"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          {...props}
+                        />
+                      ),
+                      strong: ({ ...props }) => <strong className="font-medium text-text-primary" {...props} />,
+                      h1: ({ ...props }) => (
+                        <h1 className="text-[22px] font-medium mt-6 mb-3 text-text-primary border-b border-border-subtle pb-2" {...props} />
+                      ),
+                      h2: ({ ...props }) => (
+                        <h2 className="text-[18px] font-medium mt-5 mb-3 text-text-primary" {...props} />
+                      ),
+                      h3: ({ ...props }) => (
+                        <h3 className="text-[16px] font-medium mt-4 mb-2 text-text-secondary" {...props} />
+                      ),
+                      ul: ({ ...props }) => <ul className="list-disc ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                      ol: ({ ...props }) => <ol className="list-decimal ml-5 space-y-1.5 mb-4 text-text-secondary" {...props} />,
+                      li: ({ ...props }) => <li className="pl-1 text-text-primary" {...props} />,
+                      blockquote: ({ ...props }) => (
+                        <blockquote
+                          className="border-l-2 border-brand-green/50 pl-4 py-1 text-text-secondary italic my-4"
+                          {...props}
+                        />
+                      ),
+                      code: (props) => {
+                        const { children, className, ...rest } = props;
+                        const match = /language-(\w+)/.exec(className || "");
+                        return match ? (
+                          <pre className="bg-page-bg border border-border-subtle rounded-xl p-4 my-4 overflow-x-auto text-[14px] font-mono text-text-secondary leading-[23.1px] tracking-[-0.28px]">
+                            <code className={className} {...rest}>
+                              {children}
+                            </code>
+                          </pre>
+                        ) : (
+                          <code
+                            className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[13px] font-mono text-brand-green-mid tracking-[-0.28px]"
+                            {...rest}
+                          >
                             {children}
                           </code>
-                        </pre>
-                      ) : (
-                        <code
-                          className="bg-surface-dark border border-border-subtle rounded px-1.5 py-0.5 text-[13px] font-mono text-brand-green-mid tracking-[-0.28px]"
-                          {...rest}
-                        >
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
+                        );
+                      },
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                )}
               </div>
             </div>
+	            {editingIndex === idx ? (
+	              <div className="flex gap-2 mt-2 mr-1">
+	                <button
+	                  onClick={() => {
+	                    setEditingIndex(null);
+	                    setEditWidth("auto");
+	                  }}
+	                  className="text-[12px] text-text-muted hover:text-text-primary transition-colors bg-surface-dark px-3 py-1.5 rounded-md border border-border-subtle"
+	                >
+	                  Cancel
+	                </button>
+	                <button
+	                  onClick={() => {
+	                    editMessage(idx);
+	                    setEditWidth("auto");
+	                  }}
+	                  className="text-[12px] text-brand-green font-medium hover:text-brand-green-mid transition-colors bg-brand-green/10 px-3 py-1.5 rounded-md border border-brand-green/20"
+	                >
+	                  Save
+	                </button>
+	              </div>
+	            ) : (
+	              msg.role === "user" && (
+	                <button
+	                  onClick={() => {
+	                    const el = messageRefs.current[idx];
+	                    if (el) {
+	                      setEditWidth(el.offsetWidth);
+	                    }
+	                    setEditingIndex(idx);
+	                    setEditInput(msg.content);
+	                  }}
+	                  className="text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors mr-1"
+	                >
+	                  Edit
+	                </button>
+	              )
+	            )}
+            {msg.role === "assistant" && idx === messages.length - 1 && !isLoading && (
+              <button
+                onClick={regenerateResponse}
+                className="text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors ml-1"
+              >
+                Regenerate
+              </button>
+            )}
           </div>
+
         ))}
 
         {isLoading && (

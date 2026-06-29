@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { chatroomId, message, model } = await req.json();
+    const { chatroomId, message, model, action } = await req.json();
 
     const chatrooms = getChatrooms();
     const chatroomIndex = chatrooms.findIndex((c) => c.id === chatroomId && c.userId === session.userId);
@@ -19,6 +19,19 @@ export async function POST(req: Request) {
     }
 
     const chatroom = chatrooms[chatroomIndex];
+
+    if (action === "regenerate") {
+      // 마지막 메시지가 assistant인 경우만 재생성 가능
+      if (chatroom.messages.length > 0 && chatroom.messages[chatroom.messages.length - 1].role === "assistant") {
+        chatroom.messages.pop();
+      } else {
+        return NextResponse.json({ error: "No assistant message to regenerate" }, { status: 400 });
+      }
+    } else {
+      const userMessage = { role: "user" as const, content: message, timestamp: Date.now() };
+      chatroom.messages.push(userMessage);
+    }
+
     const characters = getCharacters();
     const character = characters.find((c) => c.id === chatroom.characterId);
 
