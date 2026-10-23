@@ -37,14 +37,6 @@ GROQ_API_KEY=your_groq_api_key
 
 Get a key from [Groq Console](https://console.groq.com/keys). The key is used only by the server-side chat API routes. Do not prefix it with `NEXT_PUBLIC_` or commit it to Git.
 
-Both persona chats and persona-to-persona interactions support these Groq models:
-
-- `qwen/qwen3.8-27b` (default)
-- `openai/gpt-oss-120b`
-- `openai/gpt-oss-20b`
-
-The previous `OPENROUTER_API_KEY` setting is no longer used.
-
 Then, run the development server:
 
 ```bash
