@@ -15,7 +15,7 @@ A modern chatbot application built with [Next.js](https://nextjs.org), designed 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?logo=react&logoColor=%2361DAFB)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?&logo=tailwind-css&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?&logo=typescript&logoColor=white)
-![OpenRouter](https://img.shields.io/badge/OpenRouter-94A3B8?logo=openrouter&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-F55036?logoColor=white)
 
 ## Getting Started
 
@@ -28,6 +28,22 @@ yarn install
 # or
 pnpm install
 ```
+
+Create a `.env.local` file in the project root and add your Groq API key:
+
+```dotenv
+GROQ_API_KEY=your_groq_api_key
+```
+
+Get a key from [Groq Console](https://console.groq.com/keys). The key is used only by the server-side chat API routes. Do not prefix it with `NEXT_PUBLIC_` or commit it to Git.
+
+Both character chats and character-to-character interactions support these Groq models:
+
+- `qwen/qwen3.8-27b` (default)
+- `openai/gpt-oss-120b`
+- `openai/gpt-oss-20b`
+
+The previous `OPENROUTER_API_KEY` setting is no longer used.
 
 Then, run the development server:
 

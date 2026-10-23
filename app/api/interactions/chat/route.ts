@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCharacters, getInteractionRooms, saveInteractionRooms } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+import { createGroqReply, resolveGroqModel } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
@@ -46,41 +45,24 @@ export async function POST(req: Request) {
     // Convert history for the active character's perspective
     // Their own past messages are "assistant", the other char's are "user"
     const recentMessages = room.messages.slice(-10).map((msg) => ({
-      role: msg.characterId === activeCharacterId ? "assistant" : ("user" as const),
+      role: msg.characterId === activeCharacterId ? ("assistant" as const) : ("user" as const),
       content: msg.content,
     }));
 
     const apiMessages = [
       {
-        role: "system",
+        role: "system" as const,
         content: `You are playing the role of ${activeCharacter.name}. ${activeCharacter.persona}\n\nYou are having a conversation with ${otherCharacter.name}. Respond naturally in character as ${activeCharacter.name}.`,
       },
       ...recentMessages,
     ];
 
-    const selectedModel = model || "google/gemini-2.5-flash";
-
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Neon Character Chat",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: apiMessages,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || "Failed to fetch from OpenRouter");
+    const selectedModel = resolveGroqModel(model);
+    if (!selectedModel) {
+      return NextResponse.json({ error: "Unsupported model" }, { status: 400 });
     }
 
-    const replyContent = data.choices[0].message.content;
+    const replyContent = await createGroqReply(apiMessages, selectedModel);
 
     const newMessage = {
       characterId: activeCharacterId,

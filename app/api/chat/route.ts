@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCharacters, getChatrooms, saveChatrooms } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+import { createGroqReply, resolveGroqModel } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
@@ -44,31 +43,14 @@ export async function POST(req: Request) {
       content: msg.content,
     }));
 
-    const apiMessages = [{ role: "system", content: character.persona }, ...recentMessages];
+    const apiMessages = [{ role: "system" as const, content: character.persona }, ...recentMessages];
 
-    const selectedModel = model || "google/gemini-2.5-flash";
-
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Neon Character Chat",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: apiMessages,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || "Failed to fetch from OpenRouter");
+    const selectedModel = resolveGroqModel(model);
+    if (!selectedModel) {
+      return NextResponse.json({ error: "Unsupported model" }, { status: 400 });
     }
 
-    const replyContent = data.choices[0].message.content;
+    const replyContent = await createGroqReply(apiMessages, selectedModel);
 
     const assistantMessage = { role: "assistant" as const, content: replyContent, timestamp: Date.now() };
     chatroom.messages.push(assistantMessage);
