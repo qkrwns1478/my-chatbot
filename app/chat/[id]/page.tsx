@@ -11,11 +11,11 @@ import Image from "next/image";
 export default function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [characterName, setCharacterName] = useState<string>("Character");
-  const [characterImage, setCharacterImage] = useState<string>("/pictures/default.jpg");
+  const [personaName, setPersonaName] = useState<string>("Persona");
+  const [personaImage, setPersonaImage] = useState<string>("/pictures/default.jpg");
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id);
+  const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].id);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editInput, setEditInput] = useState("");
   const [editWidth, setEditWidth] = useState<number | string>("auto");
@@ -34,13 +34,13 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         const roomData = await roomRes.json();
         setMessages(roomData.messages || []);
 
-        const charRes = await fetch("/api/characters");
-        if (charRes.ok) {
-          const charData = await charRes.json();
-          const char = charData.find((c: { id: string }) => c.id === roomData.characterId);
-          if (char) {
-            setCharacterName(char.name);
-            setCharacterImage(char.imageUrl || "/pictures/default.jpg");
+        const personaRes = await fetch("/api/personas");
+        if (personaRes.ok) {
+          const personaData = await personaRes.json();
+          const persona = personaData.find((c: { id: string }) => c.id === roomData.personaId);
+          if (persona) {
+            setPersonaName(persona.name);
+            setPersonaImage(persona.imageUrl || "/pictures/default.jpg");
           }
         }
       } catch (error) {
@@ -172,7 +172,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           </Link>
           <div className="w-px h-4 bg-border-subtle" />
           <div className="flex items-center gap-2">
-            <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">{characterName}</h1>
+            <h1 className="text-[18px] font-medium text-text-primary tracking-[-0.13px]">{personaName}</h1>
           </div>
         </div>
         <select
@@ -197,9 +197,9 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
             ) : (
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated">
-                  <Image src={characterImage} alt={characterName} fill className="object-cover" />
+                  <Image src={personaImage} alt={personaName} fill className="object-cover" />
                 </div>
-                <span className="text-[12px] font-mono text-text-muted">{characterName}</span>
+                <span className="text-[12px] font-mono text-text-muted">{personaName}</span>
               </div>
             )}
             <div
@@ -350,9 +350,9 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-2 mb-1.5">
               <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated">
-                <Image src={characterImage} alt={characterName} fill className="object-cover" />
+                <Image src={personaImage} alt={personaName} fill className="object-cover" />
               </div>
-              <span className="text-[12px] font-mono text-text-muted">{characterName}</span>
+              <span className="text-[12px] font-mono text-text-muted">{personaName}</span>
             </div>
             <div className="bg-surface-elevated border border-border-subtle rounded-2xl rounded-bl-sm px-5 py-4 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />

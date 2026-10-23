@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, use } from "react";
 import Link from "next/link";
-import { Character, InteractionMessage } from "@/lib/db";
+import { Persona, InteractionMessage } from "@/lib/db";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AVAILABLE_MODELS from "@/data/models";
@@ -11,12 +11,12 @@ import Image from "next/image";
 export default function InteractionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [messages, setMessages] = useState<InteractionMessage[]>([]);
-  const [char1, setChar1] = useState<Character | null>(null);
-  const [char2, setChar2] = useState<Character | null>(null);
-  const [nextTurn, setNextTurn] = useState<"char1" | "char2">("char2");
+  const [persona1, setPersona1] = useState<Persona | null>(null);
+  const [persona2, setPersona2] = useState<Persona | null>(null);
+  const [nextTurn, setNextTurn] = useState<"persona1" | "persona2">("persona2");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id);
+  const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,13 +32,13 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
         setMessages(roomData.messages || []);
         setNextTurn(roomData.nextTurn);
 
-        const charRes = await fetch("/api/characters");
-        if (charRes.ok) {
-          const charData = await charRes.json();
-          const c1 = charData.find((c: Character) => c.id === roomData.character1Id);
-          const c2 = charData.find((c: Character) => c.id === roomData.character2Id);
-          setChar1(c1 || null);
-          setChar2(c2 || null);
+        const personaRes = await fetch("/api/personas");
+        if (personaRes.ok) {
+          const personaData = await personaRes.json();
+          const c1 = personaData.find((c: Persona) => c.id === roomData.persona1Id);
+          const c2 = personaData.find((c: Persona) => c.id === roomData.persona2Id);
+          setPersona1(c1 || null);
+          setPersona2(c2 || null);
         }
       } catch (error) {
         console.error(error);
@@ -53,7 +53,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
   }, [messages, isLoading]);
 
   const proceedConversation = async () => {
-    if (isLoading || !char1 || !char2) return;
+    if (isLoading || !persona1 || !persona2) return;
 
     setIsLoading(true);
 
@@ -67,7 +67,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
       const data = await res.json();
       if (res.ok) {
         setMessages((prev) => [...prev, data.reply]);
-        setNextTurn((prev) => (prev === "char1" ? "char2" : "char1"));
+        setNextTurn((prev) => (prev === "persona1" ? "persona2" : "persona1"));
       } else {
         console.error(data.error);
       }
@@ -84,7 +84,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
     setIsLoading(true);
     setMessages((prev) => prev.slice(0, -1));
     // Optimistically update nextTurn for UI
-    setNextTurn((prev) => (prev === "char1" ? "char2" : "char1"));
+    setNextTurn((prev) => (prev === "persona1" ? "persona2" : "persona1"));
 
     try {
       const res = await fetch("/api/interactions/chat", {
@@ -96,7 +96,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
       const data = await res.json();
       if (res.ok) {
         setMessages((prev) => [...prev, data.reply]);
-        setNextTurn((prev) => (prev === "char1" ? "char2" : "char1"));
+        setNextTurn((prev) => (prev === "persona1" ? "persona2" : "persona1"));
       } else {
         console.error(data.error);
         // On error, we might want to stay on the reverted turn or recover
@@ -108,9 +108,9 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  if (!char1 || !char2) return null; // or a loading state
+  if (!persona1 || !persona2) return null; // or a loading state
 
-  const activeChar = nextTurn === "char1" ? char1 : char2;
+  const activePersona = nextTurn === "persona1" ? persona1 : persona2;
 
   return (
     <div className="flex flex-col h-screen max-w-3xl mx-auto border-x border-border-subtle">
@@ -124,7 +124,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <h1 className="text-[16px] font-medium text-text-primary tracking-tight">
-                {char1.name} <span className="text-text-muted text-[13px] font-normal mx-1">vs</span> {char2.name}
+                {persona1.name} <span className="text-text-muted text-[13px] font-normal mx-1">vs</span> {persona2.name}
               </h1>
             </div>
           </div>
@@ -151,31 +151,31 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {messages.map((msg, idx) => {
-          const isChar1 = msg.characterId === char1.id;
-          const charName = isChar1 ? char1.name : char2.name;
+          const isPersona1 = msg.personaId === persona1.id;
+          const personaName = isPersona1 ? persona1.name : persona2.name;
 
           return (
-            <div key={idx} className={`flex flex-col ${isChar1 ? "items-start" : "items-end"}`}>
+            <div key={idx} className={`flex flex-col ${isPersona1 ? "items-start" : "items-end"}`}>
               <div className="flex items-center gap-2 mb-1.5 flex-row">
-                {isChar1 ? (
+                {isPersona1 ? (
                   <>
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
                       <Image
-                        src={char1.imageUrl || "/pictures/default.jpg"}
-                        alt={charName}
+                        src={persona1.imageUrl || "/pictures/default.jpg"}
+                        alt={personaName}
                         fill
                         className="object-cover"
                       />
                     </div>
-                    <span className="text-[12px] font-mono text-text-muted">{charName}</span>
+                    <span className="text-[12px] font-mono text-text-muted">{personaName}</span>
                   </>
                 ) : (
                   <>
-                    <span className="text-[12px] font-mono text-text-muted">{charName}</span>
+                    <span className="text-[12px] font-mono text-text-muted">{personaName}</span>
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
                       <Image
-                        src={char2.imageUrl || "/pictures/default.jpg"}
-                        alt={charName}
+                        src={persona2.imageUrl || "/pictures/default.jpg"}
+                        alt={personaName}
                         fill
                         className="object-cover"
                       />
@@ -185,7 +185,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
               </div>
               <div
                 className={`px-5 py-4 max-w-[85%] rounded-2xl text-[16px] leading-[26px] overflow-hidden ${
-                  isChar1
+                  isPersona1
                     ? "bg-surface-elevated border border-border-subtle text-text-primary rounded-bl-sm"
                     : "bg-surface-dark border border-brand-green/30 text-text-primary rounded-br-sm"
                 }`}
@@ -225,7 +225,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
               {idx === messages.length - 1 && !isLoading && (
                 <button
                   onClick={regenerateResponse}
-                  className={`text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors ${isChar1 ? "ml-1" : "mr-1"}`}
+                  className={`text-[11px] font-mono text-text-muted mt-1 hover:text-brand-green transition-colors ${isPersona1 ? "ml-1" : "mr-1"}`}
                 >
                   Regenerate
                 </button>
@@ -235,27 +235,27 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
         })}
 
         {isLoading && (
-          <div className={`flex flex-col ${nextTurn === "char1" ? "items-start" : "items-end"}`}>
+          <div className={`flex flex-col ${nextTurn === "persona1" ? "items-start" : "items-end"}`}>
             <div className="flex items-center gap-2 mb-1.5 flex-row">
-              {nextTurn === "char1" ? (
+              {nextTurn === "persona1" ? (
                 <>
                   <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
                     <Image
-                      src={char1.imageUrl || "/pictures/default.jpg"}
-                      alt={activeChar.name}
+                      src={persona1.imageUrl || "/pictures/default.jpg"}
+                      alt={activePersona.name}
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                  <span className="text-[12px] font-mono text-text-muted">{activePersona.name} is typing...</span>
                 </>
               ) : (
                 <>
-                  <span className="text-[12px] font-mono text-text-muted">{activeChar.name} is typing...</span>
+                  <span className="text-[12px] font-mono text-text-muted">{activePersona.name} is typing...</span>
                   <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border-subtle bg-surface-elevated flex-shrink-0">
                     <Image
-                      src={char2.imageUrl || "/pictures/default.jpg"}
-                      alt={activeChar.name}
+                      src={persona2.imageUrl || "/pictures/default.jpg"}
+                      alt={activePersona.name}
                       fill
                       className="object-cover"
                     />
@@ -264,7 +264,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
             <div
-              className={`border border-border-subtle rounded-2xl px-5 py-4 flex items-center gap-1.5 ${nextTurn === "char1" ? "bg-surface-elevated rounded-bl-sm" : "bg-surface-dark border-brand-green/30 rounded-br-sm"}`}
+              className={`border border-border-subtle rounded-2xl px-5 py-4 flex items-center gap-1.5 ${nextTurn === "persona1" ? "bg-surface-elevated rounded-bl-sm" : "bg-surface-dark border-brand-green/30 rounded-br-sm"}`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-1" />
               <span className="w-1.5 h-1.5 rounded-full bg-brand-green typing-dot-2" />
@@ -288,7 +288,7 @@ export default function InteractionPage({ params }: { params: Promise<{ id: stri
           ) : (
             <>
               <span>
-                Click to generate next response for <b>{activeChar.name}</b>
+                Click to generate next response for <b>{activePersona.name}</b>
               </span>
               <span className="text-page-bg/70 group-hover:translate-x-1 transition-transform">→</span>
             </>

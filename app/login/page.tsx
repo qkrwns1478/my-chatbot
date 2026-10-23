@@ -38,7 +38,7 @@ export default function LoginPage() {
           Login
         </h1>
         <p className="text-[14px] text-text-muted mb-10 text-center tracking-[-0.2px]">
-          Welcome back to Neon Character Chat
+          Welcome back to Neon Persona Chat
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">

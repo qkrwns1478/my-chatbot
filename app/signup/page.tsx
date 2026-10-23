@@ -37,7 +37,7 @@ export default function SignupPage() {
           Join Us
         </h1>
         <p className="text-[14px] text-text-muted mb-10 text-center tracking-[-0.2px]">
-          Create your Neon Character Chat account
+          Create your Neon Persona Chat account
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -3,24 +3,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Character } from "@/lib/db";
+import { Persona } from "@/lib/db";
 
 export default function NewInteractionPage() {
   const router = useRouter();
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [selectedChar1, setSelectedChar1] = useState<string>("");
-  const [selectedChar2, setSelectedChar2] = useState<string>("");
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [selectedPersona1, setSelectedPersona1] = useState<string>("");
+  const [selectedPersona2, setSelectedPersona2] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/characters")
+    fetch("/api/personas")
       .then((res) => res.json())
       .then((data) => {
-        setCharacters(data);
+        setPersonas(data);
         if (data.length >= 2) {
-          setSelectedChar1(data[0].id);
-          setSelectedChar2(data[1].id);
+          setSelectedPersona1(data[0].id);
+          setSelectedPersona2(data[1].id);
         }
       });
   }, []);
@@ -29,13 +29,13 @@ export default function NewInteractionPage() {
     e.preventDefault();
     setError(null);
 
-    if (!selectedChar1 || !selectedChar2) {
-      setError("Please select two characters to interact.");
+    if (!selectedPersona1 || !selectedPersona2) {
+      setError("Please select two personas to interact.");
       return;
     }
 
-    if (selectedChar1 === selectedChar2) {
-      setError("Please select two different characters.");
+    if (selectedPersona1 === selectedPersona2) {
+      setError("Please select two different personas.");
       return;
     }
 
@@ -46,8 +46,8 @@ export default function NewInteractionPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          character1Id: selectedChar1,
-          character2Id: selectedChar2,
+          persona1Id: selectedPersona1,
+          persona2Id: selectedPersona2,
         }),
       });
 
@@ -64,13 +64,13 @@ export default function NewInteractionPage() {
     }
   };
 
-  if (characters.length < 2) {
+  if (personas.length < 2) {
     return (
       <main className="min-h-screen p-8 max-w-2xl mx-auto flex flex-col items-center justify-center space-y-6">
-        <h1 className="text-[24px] text-text-primary text-center">Not enough characters</h1>
-        <p className="text-text-secondary text-center">You need at least 2 characters to start an interaction.</p>
-        <Link href="/characters/new" className="text-brand-green hover:underline">
-          Go create more characters
+        <h1 className="text-[24px] text-text-primary text-center">Not enough personas</h1>
+        <p className="text-text-secondary text-center">You need at least 2 personas to start an interaction.</p>
+        <Link href="/personas/new" className="text-brand-green hover:underline">
+          Go create more personas
         </Link>
       </main>
     );
@@ -85,21 +85,21 @@ export default function NewInteractionPage() {
           </Link>
         </div>
         <h1 className="text-[32px] font-medium text-text-primary tracking-[-0.6px]">New Interaction</h1>
-        <p className="text-text-secondary">Select two characters to watch them converse.</p>
+        <p className="text-text-secondary">Select two personas to watch them converse.</p>
       </header>
 
       <form onSubmit={handleStartInteraction} className="space-y-8">
         <div className="space-y-3">
           <label className="text-[13px] font-mono text-text-muted uppercase tracking-[0.1em]">
-            Character 1 (Initiator)
+            Persona 1 (Initiator)
           </label>
           <select
-            value={selectedChar1}
-            onChange={(e) => setSelectedChar1(e.target.value)}
+            value={selectedPersona1}
+            onChange={(e) => setSelectedPersona1(e.target.value)}
             className="w-full bg-surface-dark border border-border-subtle rounded-xl px-4 py-3 text-[15px] text-text-primary focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.2)] outline-none transition-all"
             required
           >
-            {characters.map((c) => (
+            {personas.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -109,15 +109,15 @@ export default function NewInteractionPage() {
 
         <div className="space-y-3">
           <label className="text-[13px] font-mono text-text-muted uppercase tracking-[0.1em]">
-            Character 2 (Responder)
+            Persona 2 (Responder)
           </label>
           <select
-            value={selectedChar2}
-            onChange={(e) => setSelectedChar2(e.target.value)}
+            value={selectedPersona2}
+            onChange={(e) => setSelectedPersona2(e.target.value)}
             className="w-full bg-surface-dark border border-border-subtle rounded-xl px-4 py-3 text-[15px] text-text-primary focus:border-brand-green focus:shadow-[0_0_0_1px_rgba(0,229,153,0.2)] outline-none transition-all"
             required
           >
-            {characters.map((c) => (
+            {personas.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

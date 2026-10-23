@@ -11,8 +11,8 @@ const pyeojinGothic = localFont({
 });
 
 export const metadata = {
-  title: "Neon Character Chat",
-  description: "Character chatbot using Gemini via OpenRouter",
+  title: "Neon Persona Chat",
+  description: "Persona chatbot using Gemini via OpenRouter",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

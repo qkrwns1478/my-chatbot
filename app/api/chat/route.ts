@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCharacters, getChatrooms, saveChatrooms } from "@/lib/db";
+import { getPersonas, getChatrooms, saveChatrooms } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { createGroqReply, resolveGroqModel } from "@/lib/groq";
 
@@ -31,11 +31,11 @@ export async function POST(req: Request) {
       chatroom.messages.push(userMessage);
     }
 
-    const characters = getCharacters();
-    const character = characters.find((c) => c.id === chatroom.characterId);
+    const personas = getPersonas();
+    const persona = personas.find((c) => c.id === chatroom.personaId);
 
-    if (!character) {
-      return NextResponse.json({ error: "Character not found" }, { status: 404 });
+    if (!persona) {
+      return NextResponse.json({ error: "Persona not found" }, { status: 404 });
     }
 
     const recentMessages = chatroom.messages.slice(-10).map((msg) => ({
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       content: msg.content,
     }));
 
-    const apiMessages = [{ role: "system" as const, content: character.persona }, ...recentMessages];
+    const apiMessages = [{ role: "system" as const, content: persona.persona }, ...recentMessages];
 
     const selectedModel = resolveGroqModel(model);
     if (!selectedModel) {

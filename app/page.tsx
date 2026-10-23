@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Character, Chatroom, InteractionRoom } from "@/lib/db";
+import { Persona, Chatroom, InteractionRoom } from "@/lib/db";
 import { useConfirm } from "@/context/ConfirmContext";
 
 import Image from "next/image";
@@ -11,14 +11,14 @@ import Image from "next/image";
 export default function Home() {
   const router = useRouter();
   const { confirm } = useConfirm();
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const [personas, setPersonas] = useState<Persona[]>([]);
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [interactions, setInteractions] = useState<InteractionRoom[]>([]);
 
   const fetchData = () => {
-    fetch("/api/characters")
+    fetch("/api/personas")
       .then((res) => res.json())
-      .then(setCharacters);
+      .then(setPersonas);
     fetch("/api/chatrooms")
       .then((res) => res.json())
       .then(setChatrooms);
@@ -33,16 +33,16 @@ export default function Home() {
   }, []);
 
   const startChat = useCallback(
-    async (character: Character) => {
+    async (persona: Persona) => {
       try {
         const res = await fetch("/api/chatrooms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            characterId: character.id,
+            personaId: persona.id,
             initialMessage: {
               role: "assistant",
-              content: character.greeting,
+              content: persona.greeting,
               timestamp: Date.now(),
             },
           }),
@@ -56,16 +56,16 @@ export default function Home() {
     [router],
   );
 
-  const deleteCharacter = async (e: React.MouseEvent, id: string) => {
+  const deletePersona = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const ok = await confirm({
-      title: "Delete Character",
-      message: "Are you sure you want to delete this character?",
+      title: "Delete Persona",
+      message: "Are you sure you want to delete this persona?",
       confirmText: "Delete",
       variant: "danger",
     });
     if (!ok) return;
-    await fetch(`/api/characters/${id}`, { method: "DELETE" });
+    await fetch(`/api/personas/${id}`, { method: "DELETE" });
     fetchData();
   };
 
@@ -99,7 +99,7 @@ export default function Home() {
 
   const navigateToEdit = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    router.push(`/characters/${id}/edit`);
+    router.push(`/personas/${id}/edit`);
   };
 
   const logout = async () => {
@@ -113,7 +113,7 @@ export default function Home() {
       <header className="flex justify-between items-end border-b border-border-subtle pb-8">
         <div>
           <h1 className="text-[68px] font-normal leading-[1] tracking-[-1.92px] text-text-primary">
-            Neon Character Chat
+            Neon Persona Chat
           </h1>
         </div>
         <div className="flex gap-4 items-center">
@@ -123,45 +123,44 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Characters */}
+      {/* personas */}
       <section className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Your Characters</h2>
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Your Personas</h2>
           <Link
-            href="/characters/new"
+            href="/personas/new"
             className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
           >
-            + Add Character
+            + Add Persona
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {characters.map((char) => (
+          {personas.map((persona) => (
             <div
-              key={char.id}
-              onClick={() => startChat(char)}
+              key={persona.id}
+              onClick={() => startChat(persona)}
               className="group relative bg-surface-dark border border-border-subtle rounded-2xl p-6 cursor-pointer hover:border-brand-green/50 hover:shadow-[0_0_28px_rgba(0,229,153,0.07)] transition-all duration-300 flex flex-col justify-between overflow-hidden"
             >
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="flex gap-4 items-start">
                 <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-border-subtle bg-surface-elevated relative">
-                  <Image src={char.imageUrl || "/pictures/default.jpg"} alt={char.name} fill className="object-cover" />
+                  <Image src={persona.imageUrl || "/pictures/default.jpg"} alt={persona.name} fill className="object-cover" />
                 </div>
                 <div>
                   <h3 className="text-[18px] leading-[1.3] text-text-primary mb-2 group-hover:text-brand-green transition-colors duration-200">
-                    {char.name}
+                    {persona.name}
                   </h3>
-                  <p className="text-[14px] text-text-tertiary leading-[21px] line-clamp-2">{char.persona}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border-subtle">
                 <button
-                  onClick={(e) => navigateToEdit(e, char.id)}
+                  onClick={(e) => navigateToEdit(e, persona.id)}
                   className="text-[13px] text-text-muted hover:text-text-secondary transition-colors"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={(e) => deleteCharacter(e, char.id)}
+                  onClick={(e) => deletePersona(e, persona.id)}
                   className="text-[13px] text-error/50 hover:text-error transition-colors ml-auto"
                 >
                   Delete
@@ -169,15 +168,15 @@ export default function Home() {
               </div>
             </div>
           ))}
-          {characters.length === 0 && (
+          {personas.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-20 border border-dashed border-border-subtle rounded-2xl gap-4">
               <span className="text-[28px] font-mono text-border-subtle select-none">[ ]</span>
-              <p className="text-[15px] text-text-muted">No characters yet.</p>
+              <p className="text-[15px] text-text-muted">No personas yet.</p>
               <Link
-                href="/characters/new"
+                href="/personas/new"
                 className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
               >
-                Create your first character →
+                Create your first persona →
               </Link>
             </div>
           )}
@@ -187,7 +186,7 @@ export default function Home() {
       {/* Interactions / Simulations */}
       <section className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Character Interactions</h2>
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted">Persona Interactions</h2>
           <Link
             href="/interactions/new"
             className="text-[13px] text-brand-green hover:text-brand-green-mid transition-colors"
@@ -199,9 +198,9 @@ export default function Home() {
           {interactions
             .sort((a, b) => b.updatedAt - a.updatedAt)
             .map((room) => {
-              const char1 = characters.find((c) => c.id === room.character1Id);
-              const char2 = characters.find((c) => c.id === room.character2Id);
-              if (!char1 || !char2) return null;
+              const persona1 = personas.find((c) => c.id === room.persona1Id);
+              const persona2 = personas.find((c) => c.id === room.persona2Id);
+              if (!persona1 || !persona2) return null;
 
               return (
                 <Link
@@ -211,7 +210,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-[15px] text-text-secondary group-hover:text-text-primary transition-colors duration-200">
-                      {char1.name} <span className="text-[12px] text-text-muted mx-1">vs</span> {char2.name}
+                      {persona1.name} <span className="text-[12px] text-text-muted mx-1">vs</span> {persona2.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-5">
@@ -230,7 +229,7 @@ export default function Home() {
             })}
           {interactions.length === 0 && (
             <p className="text-[15px] text-text-muted py-8 text-center">
-              No active interactions. Watch two characters converse!
+              No active interactions. Watch two personas converse!
             </p>
           )}
         </div>
@@ -243,7 +242,7 @@ export default function Home() {
           {chatrooms
             .sort((a, b) => b.updatedAt - a.updatedAt)
             .map((room) => {
-              const char = characters.find((c) => c.id === room.characterId);
+              const persona = personas.find((c) => c.id === room.personaId);
               return (
                 <Link
                   key={room.id}
@@ -252,7 +251,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-[15px] text-text-secondary group-hover:text-text-primary transition-colors duration-200">
-                      {char ? `Chat with ${char.name}` : "Unknown Character"}
+                      {persona ? `Chat with ${persona.name}` : "Unknown Persona"}
                     </span>
                   </div>
                   <div className="flex items-center gap-5">
@@ -271,7 +270,7 @@ export default function Home() {
             })}
           {chatrooms.length === 0 && (
             <p className="text-[15px] text-text-muted py-8 text-center">
-              No sessions yet. Click a character to start chatting.
+              No sessions yet. Click a persona to start chatting.
             </p>
           )}
         </div>

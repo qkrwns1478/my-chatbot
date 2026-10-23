@@ -14,7 +14,7 @@ export interface User {
   password: string; // Hashed
 }
 
-export interface Character {
+export interface Persona {
   id: string;
   userId: string;
   name: string;
@@ -32,13 +32,13 @@ export interface Message {
 export interface Chatroom {
   id: string;
   userId: string;
-  characterId: string;
+  personaId: string;
   messages: Message[];
   updatedAt: number;
 }
 
 export interface InteractionMessage {
-  characterId: string; // Shows which character spoke
+  personaId: string; // Shows which persona spoke
   content: string;
   timestamp: number;
 }
@@ -46,9 +46,9 @@ export interface InteractionMessage {
 export interface InteractionRoom {
   id: string;
   userId: string;
-  character1Id: string;
-  character2Id: string;
-  nextTurn: 'char1' | 'char2'; // Tracks whose turn it is to speak next (using string keys 'char1' or 'char2' to represent character1Id or character2Id)
+  persona1Id: string;
+  persona2Id: string;
+  nextTurn: 'persona1' | 'persona2'; // Tracks whose turn it is to speak next (using string keys 'persona1' or 'persona2' to represent persona1Id or persona2Id)
   messages: InteractionMessage[];
   updatedAt: number;
 }
@@ -61,7 +61,39 @@ function readDB<T>(filename: string, defaultData: T): T {
     fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
     return defaultData;
   }
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  if (filename === "chatrooms") {
+    return data.map((room: Record<string, unknown>) => {
+      const { characterId, ...chatroom } = room;
+      return { ...chatroom, personaId: room.personaId ?? characterId };
+    }) as T;
+  }
+  if (filename === "interactions") {
+    return data.map((room: Record<string, unknown>) => {
+      const { character1Id, character2Id, ...interaction } = room;
+      return {
+        ...interaction,
+        persona1Id: room.persona1Id ?? character1Id,
+        persona2Id: room.persona2Id ?? character2Id,
+        nextTurn:
+          room.nextTurn === "char1"
+            ? "persona1"
+            : room.nextTurn === "char2"
+              ? "persona2"
+              : room.nextTurn,
+        messages: Array.isArray(room.messages)
+          ? room.messages.map((message: Record<string, unknown>) => {
+              const { characterId, ...interactionMessage } = message;
+              return {
+                ...interactionMessage,
+                personaId: message.personaId ?? characterId,
+              };
+            })
+          : room.messages,
+      };
+    }) as T;
+  }
+  return data;
 }
 
 function writeDB<T>(filename: string, data: T) {
@@ -69,9 +101,16 @@ function writeDB<T>(filename: string, data: T) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-// Character CRUD
-export const getCharacters = () => readDB<Character[]>("characters", []);
-export const saveCharacters = (data: Character[]) => writeDB("characters", data);
+// persona CRUD
+export const getPersonas = () => {
+  const personaPath = getFilePath("personas");
+  const legacyPath = getFilePath("characters");
+  if (!fs.existsSync(personaPath) && fs.existsSync(legacyPath)) {
+    fs.copyFileSync(legacyPath, personaPath);
+  }
+  return readDB<Persona[]>("personas", []);
+};
+export const savePersonas = (data: Persona[]) => writeDB("personas", data);
 
 // Chatroom CRUD
 export const getChatrooms = () => readDB<Chatroom[]>("chatrooms", []);

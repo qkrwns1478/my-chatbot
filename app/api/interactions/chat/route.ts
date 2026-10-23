@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCharacters, getInteractionRooms, saveInteractionRooms } from "@/lib/db";
+import { getPersonas, getInteractionRooms, saveInteractionRooms } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { createGroqReply, resolveGroqModel } from "@/lib/groq";
 
@@ -23,36 +23,36 @@ export async function POST(req: Request) {
       if (room.messages.length > 0) {
         room.messages.pop();
         // Turn back the nextTurn
-        room.nextTurn = room.nextTurn === "char1" ? "char2" : "char1";
+        room.nextTurn = room.nextTurn === "persona1" ? "persona2" : "persona1";
       } else {
         return NextResponse.json({ error: "No message to regenerate" }, { status: 400 });
       }
     }
 
-    const characters = getCharacters();
+    const personas = getPersonas();
 
-    const char1 = characters.find((c) => c.id === room.character1Id);
-    const char2 = characters.find((c) => c.id === room.character2Id);
+    const persona1 = personas.find((c) => c.id === room.persona1Id);
+    const persona2 = personas.find((c) => c.id === room.persona2Id);
 
-    if (!char1 || !char2) {
-      return NextResponse.json({ error: "One or both characters not found" }, { status: 404 });
+    if (!persona1 || !persona2) {
+      return NextResponse.json({ error: "One or both personas not found" }, { status: 404 });
     }
 
-    const activeCharacterId = room.nextTurn === "char1" ? room.character1Id : room.character2Id;
-    const activeCharacter = room.nextTurn === "char1" ? char1 : char2;
-    const otherCharacter = room.nextTurn === "char1" ? char2 : char1;
+    const activePersonaId = room.nextTurn === "persona1" ? room.persona1Id : room.persona2Id;
+    const activePersona = room.nextTurn === "persona1" ? persona1 : persona2;
+    const otherPersona = room.nextTurn === "persona1" ? persona2 : persona1;
 
-    // Convert history for the active character's perspective
-    // Their own past messages are "assistant", the other char's are "user"
+    // Convert history for the active persona's perspective
+    // Their own past messages are "assistant", the other persona's are "user"
     const recentMessages = room.messages.slice(-10).map((msg) => ({
-      role: msg.characterId === activeCharacterId ? ("assistant" as const) : ("user" as const),
+      role: msg.personaId === activePersonaId ? ("assistant" as const) : ("user" as const),
       content: msg.content,
     }));
 
     const apiMessages = [
       {
         role: "system" as const,
-        content: `You are playing the role of ${activeCharacter.name}. ${activeCharacter.persona}\n\nYou are having a conversation with ${otherCharacter.name}. Respond naturally in character as ${activeCharacter.name}.`,
+        content: `You are playing the role of ${activePersona.name}. ${activePersona.persona}\n\nYou are having a conversation with ${otherPersona.name}. Respond naturally in persona as ${activePersona.name}.`,
       },
       ...recentMessages,
     ];
@@ -65,13 +65,13 @@ export async function POST(req: Request) {
     const replyContent = await createGroqReply(apiMessages, selectedModel);
 
     const newMessage = {
-      characterId: activeCharacterId,
+      personaId: activePersonaId,
       content: replyContent,
       timestamp: Date.now(),
     };
 
     room.messages.push(newMessage);
-    room.nextTurn = room.nextTurn === "char1" ? "char2" : "char1";
+    room.nextTurn = room.nextTurn === "persona1" ? "persona2" : "persona1";
     room.updatedAt = Date.now();
 
     rooms[roomIndex] = room;

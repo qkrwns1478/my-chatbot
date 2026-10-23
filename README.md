@@ -1,10 +1,10 @@
-# Neon Character Chat
+# Neon Persona Chat
 
-A modern chatbot application built with [Next.js](https://nextjs.org), designed for interactive character conversations.
+A modern chatbot application built with [Next.js](https://nextjs.org), designed for interactive persona conversations.
 
 ## Features
 
-- **Character Interaction**: Engage in rich, conversational interactions with AI characters.
+- **Persona Interaction**: Engage in rich, conversational interactions with AI personas.
 - **Image Uploads**: Share and upload images within the chat context.
 - **User Authentication**: Secure login and registration flows.
 - **Responsive UI**: Optimized chat window sizing and clear placeholders.
@@ -37,7 +37,7 @@ GROQ_API_KEY=your_groq_api_key
 
 Get a key from [Groq Console](https://console.groq.com/keys). The key is used only by the server-side chat API routes. Do not prefix it with `NEXT_PUBLIC_` or commit it to Git.
 
-Both character chats and character-to-character interactions support these Groq models:
+Both persona chats and persona-to-persona interactions support these Groq models:
 
 - `qwen/qwen3.8-27b` (default)
 - `openai/gpt-oss-120b`

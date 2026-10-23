@@ -21,12 +21,12 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { characterId, initialMessage } = await req.json();
+    const { personaId, initialMessage } = await req.json();
 
     const newChatroom: Chatroom = {
       id: crypto.randomUUID(),
       userId: session.userId,
-      characterId,
+      personaId,
       messages: initialMessage ? [initialMessage] : [],
       updatedAt: Date.now(),
     };

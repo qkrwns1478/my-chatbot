@@ -34,7 +34,7 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
     // But include API routes for authentication checks
-    '/api/characters/:path*',
+    '/api/personas/:path*',
     '/api/chatrooms/:path*',
     '/api/interactions/:path*',
   ],
